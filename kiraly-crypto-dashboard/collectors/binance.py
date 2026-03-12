@@ -13,8 +13,8 @@ class BinanceCollector:
     def __init__(self):
         self.last_quote_mode = "direct"
 
-    def _fetch_btcusdt_book(self) -> tuple[float, float]:
-        path = "/api/v3/ticker/bookTicker?symbol=BTCUSDT"
+    def _fetch_book_ticker(self, symbol: str) -> tuple[float, float]:
+        path = f"/api/v3/ticker/bookTicker?symbol={symbol}"
         errors: list[str] = []
         last_status: int | None = None
         last_url: str | None = None
@@ -37,7 +37,7 @@ class BinanceCollector:
                 errors.append(f"{url} -> {exc}")
 
         raise RuntimeError(
-            "Binance BTCUSDT fetch failed"
+            f"Binance {symbol} fetch failed"
             f" (last_status={last_status}, last_url={last_url}): "
             + " | ".join(errors)
         )
@@ -46,7 +46,16 @@ class BinanceCollector:
         if symbol != "BTC-EUR":
             raise ValueError(f"Unsupported symbol for Binance: {symbol}")
 
-        bid_usdt, ask_usdt = self._fetch_btcusdt_book()
+        # 1) Eerst native EUR market proberen
+        try:
+            bid_eur, ask_eur = self._fetch_book_ticker("BTCEUR")
+            self.last_quote_mode = "direct"
+            return bid_eur, ask_eur
+        except Exception:
+            pass
+
+        # 2) Fallback: BTCUSDT * USDT->EUR
+        bid_usdt, ask_usdt = self._fetch_book_ticker("BTCUSDT")
         usdt_eur = get_usdt_eur_mid_coinbase()
 
         bid_eur = float(bid_usdt) * float(usdt_eur)
