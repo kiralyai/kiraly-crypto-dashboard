@@ -17,7 +17,7 @@ from fees_service import (
 )
 
 # ✅ Alleen de 3 werkende exchanges tonen op Streamlit Cloud
-LIVE_EXCHANGES = ("Bitvavo", "Kraken", "Coinbase")
+LIVE_EXCHANGES = ("Bitvavo", "Kraken", "Coinbase", "Binance", "Bybit")
 
 st.set_page_config(
     page_title="KiralyAI | Crypto Exchange Cost Dashboard",
