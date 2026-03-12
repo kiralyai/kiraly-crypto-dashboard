@@ -9,10 +9,10 @@ class BybitCollector:
     def __init__(self):
         self.last_quote_mode = "direct"
 
-    def _fetch_btcusdt(self) -> tuple[float, float]:
+    def _fetch_symbol(self, symbol: str) -> tuple[float, float]:
         endpoints = [
-            "/v5/market/orderbook?category=spot&symbol=BTCUSDT&limit=1",
-            "/v5/market/tickers?category=spot&symbol=BTCUSDT",
+            f"/v5/market/orderbook?category=spot&symbol={symbol}&limit=1",
+            f"/v5/market/tickers?category=spot&symbol={symbol}",
         ]
 
         errors: list[str] = []
@@ -58,7 +58,7 @@ class BybitCollector:
                     errors.append(f"{url} -> {exc}")
 
         raise RuntimeError(
-            "Bybit BTCUSDT fetch failed"
+            f"Bybit {symbol} fetch failed"
             f" (last_status={last_status}, last_url={last_url}): "
             + " | ".join(errors)
         )
@@ -67,7 +67,16 @@ class BybitCollector:
         if symbol != "BTC-EUR":
             raise ValueError(f"Unsupported symbol for Bybit: {symbol}")
 
-        bid_usdt, ask_usdt = self._fetch_btcusdt()
+        # 1) Eerst native EUR market proberen
+        try:
+            bid_eur, ask_eur = self._fetch_symbol("BTCEUR")
+            self.last_quote_mode = "direct"
+            return bid_eur, ask_eur
+        except Exception:
+            pass
+
+        # 2) Fallback: BTCUSDT * USDT->EUR
+        bid_usdt, ask_usdt = self._fetch_symbol("BTCUSDT")
         usdt_eur = get_usdt_eur_mid_coinbase()
 
         bid_eur = float(bid_usdt) * float(usdt_eur)
