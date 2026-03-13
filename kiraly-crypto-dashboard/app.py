@@ -4,6 +4,9 @@ import platform
 
 import pandas as pd
 import streamlit as st
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 
 from collectors import get_collector, get_supported_exchange_names
 from db import DB_PATH, connect, ensure_seed_data, get_fee_row, init_db, list_exchanges
@@ -622,8 +625,14 @@ def _extract_live_ts(source_value: str) -> str:
 def _format_ts_short(value: str) -> str:
     if not value:
         return "—"
-    clean = str(value).replace("T", " ")
-    return clean[:16] + " UTC"
+
+    try:
+        dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        dt = dt.astimezone(ZoneInfo("Europe/Amsterdam"))
+        return dt.strftime("%Y-%m-%d %H:%M") + " CET"
+    except Exception:
+        return str(value)
+
 
 
 def _source_badge(source: str) -> str:
