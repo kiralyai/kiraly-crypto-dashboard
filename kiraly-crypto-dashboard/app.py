@@ -37,7 +37,7 @@ def apply_light_style() -> None:
 
         .block-container {
             max-width: 1240px;
-            padding-top: 1.2rem;
+            padding-top: 0.2rem;
             padding-bottom: 2rem;
         }
 
@@ -104,7 +104,7 @@ def apply_light_style() -> None:
         }
 
         .hero-wrap {
-            padding: 8px 0 4px 0;
+            padding: 0 0 4px 0;
         }
 
         .hero-chip {
@@ -315,6 +315,24 @@ def apply_light_style() -> None:
         #MainMenu { visibility: hidden; }
         footer { visibility: hidden; }
 
+        header[data-testid="stHeader"] {
+            display: none !important;
+            height: 0 !important;
+        }
+
+        [data-testid="stToolbar"] {
+            display: none !important;
+        }
+
+        [data-testid="stDecoration"] {
+            display: none !important;
+        }
+
+        [data-testid="stAppViewContainer"] > .main {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+        }
+
         @media (max-width: 900px) {
             .exchange-grid {
                 grid-template-columns: 1fr 1fr;
@@ -326,7 +344,7 @@ def apply_light_style() -> None:
                 text-align: left;
             }
             .block-container {
-                padding-top: 0.75rem;
+                padding-top: 0.1rem;
             }
         }
         </style>
@@ -832,9 +850,6 @@ def render_debug(con, symbol: str) -> None:
     )
 
 
-# -------------------------
-# App start
-# -------------------------
 apply_light_style()
 render_header()
 
