@@ -16,7 +16,6 @@ from fees_service import (
     save_exchange_fees,
 )
 
-# ✅ Alleen de 3 werkende exchanges tonen op Streamlit Cloud
 LIVE_EXCHANGES = ("Bitvavo", "Kraken", "Coinbase", "Binance", "Bybit")
 
 st.set_page_config(
@@ -32,113 +31,303 @@ def apply_light_style() -> None:
         """
         <style>
         .stApp {
-            background: #F9FAFB;
-            color: #111827;
+            background: linear-gradient(180deg, #F7F9FC 0%, #EEF3F8 100%);
+            color: #0F172A;
         }
+
         .block-container {
-            padding-top: 1rem;
-            padding-bottom: 1.25rem;
+            max-width: 1240px;
+            padding-top: 1.2rem;
+            padding-bottom: 2rem;
         }
+
         h1, h2, h3, h4 {
-            margin-top: 0.2rem;
+            margin-top: 0;
             margin-bottom: 0.35rem;
+            color: #0F172A;
         }
+
         [data-testid="stVerticalBlockBorderWrapper"] {
-            background: #FFFFFF;
-            border: 1px solid #E5E7EB;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(17, 24, 39, 0.04);
+            background: rgba(255,255,255,0.82);
+            border: 1px solid rgba(255,255,255,0.82);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(10px);
         }
+
         [data-testid="stVerticalBlockBorderWrapper"] > div {
-            padding: 14px 18px;
+            padding: 20px 22px;
         }
+
         [data-testid="stButton"] > button,
         [data-testid="stDownloadButton"] > button {
-            background: #FFFFFF !important;
-            color: #111827 !important;
-            border: 1px solid #D1D5DB !important;
-            border-radius: 10px !important;
-            font-weight: 600 !important;
+            background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 14px !important;
+            font-weight: 700 !important;
+            min-height: 48px;
         }
+
         [data-testid="stButton"] > button:hover,
         [data-testid="stDownloadButton"] > button:hover {
-            background: #F3F4F6 !important;
-            color: #111827 !important;
-            border-color: #9CA3AF !important;
+            filter: brightness(1.03);
+            transform: translateY(-1px);
         }
-        [data-testid="stButton"] > button:focus,
-        [data-testid="stDownloadButton"] > button:focus {
-            color: #111827 !important;
-            border-color: #3B82F6 !important;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25) !important;
-        }
+
         [data-testid="stButton"] > button:disabled,
         [data-testid="stDownloadButton"] > button:disabled {
-            background: #F9FAFB !important;
-            color: #9CA3AF !important;
-            border-color: #E5E7EB !important;
+            opacity: 0.65;
             cursor: not-allowed !important;
         }
+
         [data-baseweb="input"] input,
         [data-baseweb="select"] input,
         [data-baseweb="select"] span,
         [data-baseweb="select"] div,
         [data-baseweb="textarea"] textarea {
-            color: #111827 !important;
+            color: #0F172A !important;
         }
-        [data-baseweb="input"] input::placeholder,
-        [data-baseweb="textarea"] textarea::placeholder {
-            color: #6B7280 !important;
-            opacity: 1 !important;
-        }
+
         [data-baseweb="input"] > div,
         [data-baseweb="select"] > div,
         [data-baseweb="textarea"] > div {
             background: #FFFFFF !important;
-            border-color: #D1D5DB !important;
+            border-color: #D7DFEA !important;
+            border-radius: 14px !important;
         }
+
+        [data-baseweb="input"] input::placeholder,
+        [data-baseweb="textarea"] textarea::placeholder {
+            color: #64748B !important;
+            opacity: 1 !important;
+        }
+
+        .hero-wrap {
+            padding: 8px 0 4px 0;
+        }
+
+        .hero-chip {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(14, 165, 233, 0.12);
+            color: #0369A1;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .hero-title {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.05;
+            color: #0F172A;
+            margin-bottom: 8px;
+        }
+
+        .hero-subtitle {
+            color: #64748B;
+            font-size: 1rem;
+            max-width: 760px;
+        }
+
+        .control-label {
+            color: #475569;
+            font-weight: 700;
+            font-size: 0.82rem;
+            margin-bottom: 6px;
+        }
+
+        .metric-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%);
+            border: 1px solid #E2E8F0;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+            min-height: 112px;
+        }
+
+        .metric-label {
+            color: #64748B;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0F172A;
+            line-height: 1.05;
+        }
+
+        .metric-subvalue {
+            color: #475569;
+            font-size: 0.95rem;
+            margin-top: 8px;
+        }
+
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #0F172A;
+            margin-bottom: 10px;
+        }
+
+        .section-subtitle {
+            color: #64748B;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .exchange-card {
+            background: rgba(255,255,255,0.94);
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            margin-bottom: 14px;
+        }
+
+        .exchange-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .exchange-rank {
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #0369A1;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .exchange-name {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #0F172A;
+            margin-bottom: 2px;
+        }
+
+        .exchange-meta {
+            color: #64748B;
+            font-size: 0.92rem;
+        }
+
+        .exchange-total {
+            text-align: right;
+        }
+
+        .exchange-total-label {
+            color: #64748B;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .exchange-total-value {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #0F172A;
+            line-height: 1.1;
+            margin-top: 4px;
+        }
+
+        .exchange-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .mini-stat {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .mini-stat-label {
+            color: #64748B;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 6px;
+        }
+
+        .mini-stat-value {
+            color: #0F172A;
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            margin-right: 8px;
+        }
+
+        .badge-best {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .badge-live {
+            background: #DBEAFE;
+            color: #1D4ED8;
+        }
+
+        .badge-fallback {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
         .kiraly-subtle {
-            color: #6B7280;
+            color: #64748B;
             font-size: 0.95rem;
         }
-        .header-subtitle {
-            color: #6B7280;
-            text-align: right;
-            font-size: 0.9rem;
-            margin-top: 2px;
-        }
-        .header-brand {
-            display: flex;
-            align-items: center;
-            min-height: 96px;
-        }
-        .control-label {
-            color: #374151;
-            font-weight: 600;
-            font-size: 0.82rem;
-            margin-bottom: 4px;
-        }
+
         div[data-testid="stDataFrame"] {
-            background: #FFFFFF !important;
-            border: 1px solid #E5E7EB;
-            border-radius: 10px;
+            border-radius: 16px;
             overflow: hidden;
+            border: 1px solid #E2E8F0;
         }
+
         div[data-testid="stDataFrame"] [role="grid"] {
             background: #FFFFFF !important;
-            color: #111827 !important;
+            color: #0F172A !important;
         }
 
-        /* ✅ VERBERG sidebar + hamburger (zodat klanten geen refresh/debug zien) */
         section[data-testid="stSidebar"] { display: none !important; }
         button[kind="header"] { display: none !important; }
-
-        /* ✅ VERBERG Streamlit menu/footer */
         #MainMenu { visibility: hidden; }
         footer { visibility: hidden; }
 
         @media (max-width: 900px) {
-            .block-container { padding-top: 0.5rem; }
+            .exchange-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .exchange-top {
+                flex-direction: column;
+            }
+            .exchange-total {
+                text-align: left;
+            }
+            .block-container {
+                padding-top: 0.75rem;
+            }
         }
         </style>
         """,
@@ -148,27 +337,23 @@ def apply_light_style() -> None:
 
 def render_header() -> None:
     with st.container():
-        left_col, right_col = st.columns([5, 3], vertical_alignment="center")
+        left_col, right_col = st.columns([1, 8], vertical_alignment="center")
 
         with left_col:
-            logo_col, name_col = st.columns([1, 7], vertical_alignment="center")
-            with logo_col:
-                st.markdown('<div class="header-brand">', unsafe_allow_html=True)
-                try:
-                    st.image(str(Path("assets/kiraly-logo.png")), width=100)
-                except Exception:
-                    pass
-                st.markdown("</div>", unsafe_allow_html=True)
-            with name_col:
-                st.markdown("### KiralyAI")
+            try:
+                st.image(str(Path("assets/kiraly-logo.png")), width=88)
+            except Exception:
+                pass
 
         with right_col:
+            st.markdown('<div class="hero-wrap">', unsafe_allow_html=True)
+            st.markdown('<div class="hero-chip">Live market overview</div>', unsafe_allow_html=True)
+            st.markdown('<div class="hero-title">Crypto Exchange Cost Dashboard</div>', unsafe_allow_html=True)
             st.markdown(
-                '<div class="header-subtitle">Crypto Exchange Cost Dashboard</div>',
+                '<div class="hero-subtitle">Compare the total EUR cost of buying BTC across major exchanges. See the cheapest venue instantly, with live spread and fee impact.</div>',
                 unsafe_allow_html=True,
             )
-
-        st.divider()
+            st.markdown("</div>", unsafe_allow_html=True)
 
 
 def is_streamlit_cloud() -> bool:
@@ -180,12 +365,6 @@ def is_streamlit_cloud() -> bool:
 
 
 def _is_admin_mode() -> bool:
-    """
-    Admin mode aanzetten via:
-    - Streamlit Cloud secrets: ADMIN_MODE="true"
-    OF
-    - URL param: ?admin=1  (handig voor jezelf)
-    """
     try:
         qp = st.query_params
         if str(qp.get("admin", "")).strip() in ("1", "true", "True", "yes"):
@@ -239,46 +418,21 @@ def _refresh_live_quotes(
 
 def render_controls(con):
     with st.container(border=True):
-        st.markdown("#### Market Controls")
-
-        try:
-            exchange_names_for_fetch = _get_dashboard_exchanges(con)
-        except Exception as exc:
-            exchange_names_for_fetch = []
-            st.error(f"Could not load exchanges for fetch: {exc}")
-
-        default_fetch_index = (
-            exchange_names_for_fetch.index("Bitvavo")
-            if "Bitvavo" in exchange_names_for_fetch
-            else 0
-        )
-
-        c1, c2, c3, c4 = st.columns(4, gap="small", vertical_alignment="bottom")
+        c1, c2, c3 = st.columns([2, 2, 1.3], gap="small", vertical_alignment="bottom")
 
         with c1:
             st.markdown('<div class="control-label">Pair</div>', unsafe_allow_html=True)
             symbol = st.selectbox("Pair", ["BTC-EUR"], label_visibility="collapsed")
 
         with c2:
-            st.markdown('<div class="control-label">Amount</div>', unsafe_allow_html=True)
+            st.markdown('<div class="control-label">Investment amount</div>', unsafe_allow_html=True)
             amount = st.selectbox("Amount", [100, 1000, 10000], index=1, label_visibility="collapsed")
 
         with c3:
-            st.markdown('<div class="control-label">Live Exchange</div>', unsafe_allow_html=True)
-            if exchange_names_for_fetch:
-                _ = st.selectbox(
-                    "Live quote exchange",
-                    exchange_names_for_fetch,
-                    index=default_fetch_index,
-                    label_visibility="collapsed",
-                )
-            else:
-                st.info("No exchanges available.")
-
-        with c4:
-            st.markdown('<div class="control-label">Action</div>', unsafe_allow_html=True)
+            st.markdown('<div class="control-label">Market data</div>', unsafe_allow_html=True)
+            exchange_names_for_fetch = _get_dashboard_exchanges(con)
             fetch_clicked = st.button(
-                "Fetch Live Quotes",
+                "Refresh Market Data",
                 disabled=not exchange_names_for_fetch,
                 use_container_width=True,
             )
@@ -290,17 +444,11 @@ def render_controls(con):
             st.session_state["fallback_exchanges"] = fallback_used
 
             if refreshed:
-                st.success(f"Live quotes updated for: {', '.join(refreshed)}")
-
-            # (Voor deze 3 exchanges verwacht je normaliter geen fallback,
-            # maar we laten het netjes zien als het ooit gebeurt.)
-            if fallback_used:
-                st.info(f"Fallback used (USDT->EUR): {', '.join(fallback_used)}")
+                st.success(f"Updated market quotes for: {', '.join(refreshed)}")
 
             if failed:
-                # filter naar LIVE_EXCHANGES zodat je nooit “spook exchanges” ziet
                 failed = {name: err for name, err in failed.items() if name in LIVE_EXCHANGES}
-                if failed:
+                if failed and ADMIN_MODE:
                     st.warning(
                         "Some exchanges failed: "
                         + "; ".join([f"{name}: {error}" for name, error in failed.items()])
@@ -442,6 +590,31 @@ def _format_pct(value: float) -> str:
     return f"{value:.4f}".rstrip("0").rstrip(".") + "%"
 
 
+def _format_eur(value: float) -> str:
+    return f"€ {float(value):,.2f}"
+
+
+def _extract_live_ts(source_value: str) -> str:
+    raw = str(source_value or "")
+    if raw.startswith("live (") and raw.endswith(")"):
+        return raw[len("live ("):-1]
+    return ""
+
+
+def _format_ts_short(value: str) -> str:
+    if not value:
+        return "—"
+    clean = str(value).replace("T", " ")
+    return clean[:16] + " UTC"
+
+
+def _source_badge(source: str) -> str:
+    source = str(source or "").lower()
+    if source.startswith("fallback"):
+        return '<span class="badge badge-fallback">Fallback</span>'
+    return '<span class="badge badge-live">Live</span>'
+
+
 def _resolve_total_column(df: pd.DataFrame, amount: int) -> str:
     expected = f"Total € (op €{amount})"
     if expected in df.columns:
@@ -458,10 +631,131 @@ def _resolve_total_column(df: pd.DataFrame, amount: int) -> str:
     raise KeyError(f"No total-eur column found in dataframe columns: {list(df.columns)}")
 
 
-def render_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
-    with st.container(border=True):
-        st.subheader("Vergelijking")
+def render_summary_cards(df: pd.DataFrame, amount: int) -> None:
+    if df.empty:
+        return
 
+    total_col = _resolve_total_column(df, amount)
+    ranked = df.sort_values(total_col, ascending=True).reset_index(drop=True)
+
+    cheapest = ranked.iloc[0]
+    best_spread = ranked.sort_values("Spread %", ascending=True).iloc[0]
+
+    live_ts_values = [
+        _extract_live_ts(v) for v in ranked["Spread source"].tolist() if _extract_live_ts(v)
+    ]
+    latest_ts = max(live_ts_values) if live_ts_values else ""
+
+    cols = st.columns(4, gap="small")
+
+    with cols[0]:
+        st.markdown(
+            f"""
+            <div class="metric-card">
+                <div class="metric-label">Cheapest exchange</div>
+                <div class="metric-value">{cheapest["Exchange"]}</div>
+                <div class="metric-subvalue">{_format_eur(cheapest[total_col])} total cost</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with cols[1]:
+        st.markdown(
+            f"""
+            <div class="metric-card">
+                <div class="metric-label">Lowest total cost</div>
+                <div class="metric-value">{_format_eur(cheapest[total_col])}</div>
+                <div class="metric-subvalue">Based on € {amount}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with cols[2]:
+        st.markdown(
+            f"""
+            <div class="metric-card">
+                <div class="metric-label">Best spread</div>
+                <div class="metric-value">{_format_pct(float(best_spread["Spread %"]))}</div>
+                <div class="metric-subvalue">{best_spread["Exchange"]}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with cols[3]:
+        st.markdown(
+            f"""
+            <div class="metric-card">
+                <div class="metric-label">Latest market update</div>
+                <div class="metric-value" style="font-size:1.18rem;">{_format_ts_short(latest_ts)}</div>
+                <div class="metric-subvalue">Most recent visible quote</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
+def render_exchange_cards(df: pd.DataFrame, amount: int) -> None:
+    if df.empty:
+        st.info("No comparison data available.")
+        return
+
+    st.markdown('<div class="section-title">Ranked exchanges</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-subtitle">A cleaner view of the total BTC purchase cost across all supported venues.</div>',
+        unsafe_allow_html=True,
+    )
+
+    total_col = _resolve_total_column(df, amount)
+    ranked = df.sort_values(total_col, ascending=True).reset_index(drop=True)
+
+    for i, (_, row) in enumerate(ranked.iterrows(), start=1):
+        best_badge = '<span class="badge badge-best">Best price</span>' if i == 1 else ""
+        source_badge = _source_badge(row.get("Spread source", ""))
+        source_text = str(row.get("Spread source", "")).split("(")[0].strip().title() or "—"
+
+        st.markdown(
+            f"""
+            <div class="exchange-card">
+                <div class="exchange-top">
+                    <div>
+                        <div class="exchange-rank">Rank #{i}</div>
+                        <div class="exchange-name">{row["Exchange"]}</div>
+                        <div class="exchange-meta">{best_badge}{source_badge}</div>
+                    </div>
+                    <div class="exchange-total">
+                        <div class="exchange-total-label">Total cost on € {amount}</div>
+                        <div class="exchange-total-value">{_format_eur(row[total_col])}</div>
+                    </div>
+                </div>
+                <div class="exchange-grid">
+                    <div class="mini-stat">
+                        <div class="mini-stat-label">Trading fee</div>
+                        <div class="mini-stat-value">{_format_pct(float(row["Fee %"]))}</div>
+                    </div>
+                    <div class="mini-stat">
+                        <div class="mini-stat-label">Spread</div>
+                        <div class="mini-stat-value">{_format_pct(float(row["Spread %"]))}</div>
+                    </div>
+                    <div class="mini-stat">
+                        <div class="mini-stat-label">Total %</div>
+                        <div class="mini-stat-value">{_format_pct(float(row["Total %"]))}</div>
+                    </div>
+                    <div class="mini-stat">
+                        <div class="mini-stat-label">Source</div>
+                        <div class="mini-stat-value">{source_text}</div>
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
+def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
+    with st.expander("Open detailed comparison data", expanded=False):
         if df.empty:
             st.info("No comparison data available.")
             st.download_button(
@@ -498,7 +792,6 @@ def render_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
 
 
 def render_debug(con, symbol: str) -> None:
-    # Debug alleen in admin mode, dus klanten zien dit nooit
     st.subheader("Debug")
     st.write("DB:", str(DB_PATH))
     st.write("Streamlit Cloud mode:", is_streamlit_cloud())
@@ -555,9 +848,9 @@ symbol, amount = render_controls(con)
 
 dashboard_exchanges = _get_dashboard_exchanges(con)
 
-# Let op: we refreshen niet automatisch (geen sidebar/timer); user klikt op Fetch Live Quotes.
-# Maar we proberen wél bij eerste load alvast live data te hebben:
-_, refresh_failures, fallback_used = _refresh_live_quotes(con, symbol=symbol, exchange_names=dashboard_exchanges)
+_, refresh_failures, fallback_used = _refresh_live_quotes(
+    con, symbol=symbol, exchange_names=dashboard_exchanges
+)
 
 if "fallback_exchanges" not in st.session_state:
     st.session_state["fallback_exchanges"] = []
@@ -566,10 +859,8 @@ if fallback_used:
     st.session_state["fallback_exchanges"] = fallback_used
 
 if refresh_failures:
-    # filter strikt naar LIVE_EXCHANGES
     refresh_failures = {name: err for name, err in refresh_failures.items() if name in LIVE_EXCHANGES}
     if refresh_failures and ADMIN_MODE:
-        # Alleen admin ziet dit soort waarschuwingen.
         st.warning(
             "Live quote refresh issues: "
             + "; ".join([f"{name}: {error}" for name, error in refresh_failures.items()])
@@ -584,21 +875,19 @@ except Exception as exc:
     st.error(f"Unexpected error while building dashboard: {exc}")
     df = pd.DataFrame()
 
-# ✅ Filter altijd naar alleen de 3 live exchanges
 if not df.empty:
     df = df[df["Exchange"].isin(dashboard_exchanges)].copy()
 
-    # Als je echt alleen live wil: laat live rows staan (fallback eruit)
     if "Spread source" in df.columns:
-        # we laten live + fallback toe, maar je kunt fallback ook eruit filteren als je wil.
-        # Voor nu: live en fallback toegestaan, maar fallback label netjes maken.
         fallback_set = set(st.session_state.get("fallback_exchanges", []))
         if fallback_set:
             df.loc[df["Exchange"].isin(fallback_set), "Spread source"] = "fallback (BTCUSDT * USDT->EUR)"
 
-render_table(df, symbol=symbol, amount=int(amount))
+render_summary_cards(df, amount=int(amount))
+st.markdown("")
+render_exchange_cards(df, amount=int(amount))
+render_details_table(df, symbol=symbol, amount=int(amount))
 
-# ✅ Debug + Admin alleen voor jou (admin mode)
 if ADMIN_MODE:
     st.divider()
     render_debug(con, symbol=symbol)
@@ -606,7 +895,7 @@ if ADMIN_MODE:
     render_admin(con)
 
 st.caption(
-    "Tip: vul echte fees + source links in via de Admin editor. Bitvavo/Kraken/Coinbase spread is live als je een quote fetch doet."
+    "Tip: fee percentages are database-based, while market spreads and quote sources are refreshed from live market data."
     if ADMIN_MODE
     else ""
 )
