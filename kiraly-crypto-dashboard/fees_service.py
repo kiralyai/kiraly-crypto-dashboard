@@ -165,6 +165,7 @@ def build_comparison_dataframe(
                 "Fee %": round(taker_fee_pct, 6),
                 "Maker fee %": round(maker_fee_pct, 6),
                 "Taker fee %": round(taker_fee_pct, 6),
+                "Used fee %": round(taker_fee_pct, 6),
                 "Spread %": round(float(spread_pct), 6),
                 "Total %": round(float(total_pct), 6),
                 f"Total € (op €{amount})": round(float(total_eur), 2),
@@ -175,7 +176,7 @@ def build_comparison_dataframe(
                 "Website": row["website"],
                 "Fee source": row["source_url"] or "",
                 "Source": row["source_url"] or "",
-                "Affiliate URL": row["affiliate_url"] or "",
+                "Affiliate": row["affiliate_url"] or "",
             }
         )
 

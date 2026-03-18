@@ -34,12 +34,12 @@ def get_market_data_source_links(
     is_fallback = str(spread_source or "").lower().startswith("fallback")
 
     if exchange_name == "Bitvavo":
-        return [{"label": "Market API", "url": f"https://api.bitvavo.com/v2/ticker/book?market={symbol}"}]
+        return [{"label": "API source", "url": f"https://api.bitvavo.com/v2/ticker/book?market={symbol}"}]
 
     if exchange_name == "Coinbase":
         return [
             {
-                "label": "Market API",
+                "label": "API source",
                 "url": f"https://api.exchange.coinbase.com/products/{symbol}/ticker",
             }
         ]
@@ -48,7 +48,7 @@ def get_market_data_source_links(
         pair = {"BTC-EUR": "XXBTZEUR"}.get(symbol, symbol.replace("-", ""))
         return [
             {
-                "label": "Market API",
+                "label": "API source",
                 "url": f"https://api.kraken.com/0/public/Depth?pair={pair}&count=1",
             }
         ]
@@ -57,17 +57,17 @@ def get_market_data_source_links(
         if is_fallback:
             return [
                 {
-                    "label": "Market API",
+                    "label": "API source",
                     "url": "https://api.binance.com/api/v3/ticker/bookTicker?symbol=BTCUSDT",
                 },
                 {
-                    "label": "FX API",
+                    "label": "FX reference",
                     "url": "https://api.coinbase.com/v2/exchange-rates?currency=USDT",
                 },
             ]
         return [
             {
-                "label": "Market API",
+                "label": "API source",
                 "url": "https://api.binance.com/api/v3/ticker/bookTicker?symbol=BTCEUR",
             }
         ]
@@ -76,17 +76,17 @@ def get_market_data_source_links(
         if is_fallback:
             return [
                 {
-                    "label": "Market API",
+                    "label": "API source",
                     "url": "https://api.bybit.com/v5/market/orderbook?category=spot&symbol=BTCUSDT&limit=1",
                 },
                 {
-                    "label": "FX API",
+                    "label": "FX reference",
                     "url": "https://api.coinbase.com/v2/exchange-rates?currency=USDT",
                 },
             ]
         return [
             {
-                "label": "Market API",
+                "label": "API source",
                 "url": "https://api.bybit.com/v5/market/orderbook?category=spot&symbol=BTCEUR&limit=1",
             }
         ]
@@ -95,17 +95,17 @@ def get_market_data_source_links(
         if is_fallback:
             return [
                 {
-                    "label": "Market API",
+                    "label": "API source",
                     "url": "https://www.okx.com/api/v5/market/books?instId=BTC-USDT&sz=1",
                 },
                 {
-                    "label": "FX API",
+                    "label": "FX reference",
                     "url": "https://api.coinbase.com/v2/exchange-rates?currency=USDT",
                 },
             ]
         return [
             {
-                "label": "Market API",
+                "label": "API source",
                 "url": "https://www.okx.com/api/v5/market/books?instId=BTC-EUR&sz=1",
             }
         ]

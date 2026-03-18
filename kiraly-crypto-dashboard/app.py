@@ -21,7 +21,7 @@ from fees_service import (
     save_exchange_fees,
 )
 
-LIVE_EXCHANGES = ("Bitvavo", "Kraken", "Coinbase", "Binance", "Bybit", "OKX")
+LIVE_EXCHANGES = ("Bitvavo", "Kraken", "Coinbase", "OKX")
 
 st.set_page_config(
     page_title="KiralyAI | Crypto Exchange Cost Dashboard",
@@ -248,7 +248,7 @@ def apply_light_style() -> None:
 
         .exchange-grid {
             display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
+            grid-template-columns: repeat(6, minmax(0, 1fr));
             gap: 12px;
             margin-top: 10px;
         }
@@ -679,6 +679,13 @@ def _format_pct(value: float) -> str:
     return f"{value:.4f}".rstrip("0").rstrip(".") + "%"
 
 
+def _format_spread_pct(value: float) -> str:
+    spread_pct = abs(float(value))
+    if 0 < spread_pct < 0.01:
+        return "<0.01%"
+    return _format_pct(float(value))
+
+
 def _format_eur(value: float) -> str:
     return f"€ {float(value):,.2f}"
 
@@ -735,13 +742,13 @@ def _build_exchange_links_html(row: pd.Series, symbol: str) -> str:
     for item in _get_market_links_for_row(row, symbol):
         item_url = _normalize_link_url(item.get("url"))
         if item_url:
-            link_html_parts.append(_build_link_html(item.get("label", "Market API"), item_url))
+            link_html_parts.append(_build_link_html(item.get("label", "API source"), item_url))
 
     fee_source_url = _normalize_link_url(row.get("Fee source", row.get("Source", "")))
     if fee_source_url:
         link_html_parts.append(_build_link_html("Fee source", fee_source_url))
 
-    affiliate_url = _normalize_link_url(row.get("Affiliate URL", ""))
+    affiliate_url = _normalize_link_url(row.get("Affiliate", ""))
     if affiliate_url:
         link_html_parts.append(_build_link_html("Affiliate", affiliate_url))
 
@@ -842,7 +849,7 @@ def render_summary_cards(df: pd.DataFrame, amount: int) -> None:
             f"""
             <div class="metric-card">
                 <div class="metric-label">Best spread</div>
-                <div class="metric-value">{_format_pct(float(best_spread["Spread %"]))}</div>
+                <div class="metric-value">{_format_spread_pct(float(best_spread["Spread %"]))}</div>
                 <div class="metric-subvalue">{best_spread["Exchange"]}</div>
             </div>
             """,
@@ -898,23 +905,27 @@ def render_exchange_cards(df: pd.DataFrame, symbol: str, amount: int) -> None:
                 </div>
                 <div class="exchange-grid">
                     <div class="mini-stat">
-                        <div class="mini-stat-label">Maker fee</div>
+                        <div class="mini-stat-label">Maker fee %</div>
                         <div class="mini-stat-value">{_format_pct(float(row["Maker fee %"]))}</div>
                     </div>
                     <div class="mini-stat">
-                        <div class="mini-stat-label">Taker fee</div>
+                        <div class="mini-stat-label">Taker fee %</div>
                         <div class="mini-stat-value">{_format_pct(float(row["Taker fee %"]))}</div>
                     </div>
                     <div class="mini-stat">
-                        <div class="mini-stat-label">Spread</div>
-                        <div class="mini-stat-value">{_format_pct(float(row["Spread %"]))}</div>
+                        <div class="mini-stat-label">Used fee %</div>
+                        <div class="mini-stat-value">{_format_pct(float(row["Used fee %"]))}</div>
+                    </div>
+                    <div class="mini-stat">
+                        <div class="mini-stat-label">Spread %</div>
+                        <div class="mini-stat-value">{_format_spread_pct(float(row["Spread %"]))}</div>
                     </div>
                     <div class="mini-stat">
                         <div class="mini-stat-label">Total %</div>
                         <div class="mini-stat-value">{_format_pct(float(row["Total %"]))}</div>
                     </div>
                     <div class="mini-stat">
-                        <div class="mini-stat-label">Source</div>
+                        <div class="mini-stat-label">Quote source</div>
                         <div class="mini-stat-value">{source_text}</div>
                     </div>
                 </div>
@@ -948,8 +959,8 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
             ),
             axis=1,
         )
-        df_export["Market API"] = market_links.map(lambda links: links[0])
-        df_export["Reference API"] = market_links.map(lambda links: links[1])
+        df_export["API source"] = market_links.map(lambda links: links[0])
+        df_export["FX reference"] = market_links.map(lambda links: links[1])
 
         df_display = df_export.copy()
         df_display.insert(0, "Status", "")
@@ -959,9 +970,12 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
 
         df_display = df_display.drop(columns=["Fee %", "Source"], errors="ignore")
 
-        for col in ["Maker fee %", "Taker fee %", "Spread %", "Total %"]:
+        for col in ["Maker fee %", "Taker fee %", "Used fee %", "Total %"]:
             if col in df_display.columns:
                 df_display[col] = df_display[col].map(_format_pct)
+
+        if "Spread %" in df_display.columns:
+            df_display["Spread %"] = df_display["Spread %"].map(_format_spread_pct)
 
         for col in [total_col, "iDEAL fee €", "EUR opname €"]:
             if col in df_display.columns:

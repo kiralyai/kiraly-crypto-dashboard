@@ -6,17 +6,17 @@ from typing import Any
 DB_PATH = Path("data/app.db")
 
 DEFAULT_EXCHANGES = [
-    ("Bitvavo", "exchange", "https://bitvavo.com", ""),
+    ("Bitvavo", "exchange", "https://bitvavo.com", "https://bitvavo.com/invite?a=87389B1D4B"),
     ("Binance", "exchange", "https://www.binance.com", ""),
-    ("Bybit", "exchange", "https://www.bybit.com", ""),
-    ("Kraken", "exchange", "https://www.kraken.com", ""),
+    ("Bybit", "exchange", "https://www.bybit.com", "https://partner.bybit.eu/b/studiocrypto"),
+    ("Kraken", "exchange", "https://www.kraken.com", "https://invite.kraken.com/JDNW/oa95occ3"),
     ("Finst", "broker", "https://finst.com", ""),
-    ("Coinbase", "exchange", "https://coinbase.com", ""),
+    ("Coinbase", "exchange", "https://coinbase.com", "https://coinbase-consumer.sjv.io/c/5355518/552039/9251"),
     ("Coinmerce", "broker", "https://coinmerce.io", ""),
     ("BLOX", "broker", "https://weareblox.com", ""),
     ("eToro", "broker", "https://etoro.com", ""),
     ("Amdax", "broker", "https://amdax.com", ""),
-    ("OKX", "exchange", "https://www.okx.com", ""),
+    ("OKX", "exchange", "https://www.okx.com", "https://my.okx.com/join/STUDIOCRYPTO"),
 ]
 
 DEFAULT_FEES_BY_NAME = {
@@ -27,7 +27,7 @@ DEFAULT_FEES_BY_NAME = {
         "deposit_ideal_fee_eur": 0.0,
         "withdraw_eur_fee_eur": 0.0,
         "spread_estimate_pct": 0.10,
-        "source_url": "",
+        "source_url": "https://bitvavo.com/en/fees",
     },
     "Finst": {
         "trading_fee_pct": 0.0,
@@ -45,7 +45,7 @@ DEFAULT_FEES_BY_NAME = {
         "deposit_ideal_fee_eur": 0.0,
         "withdraw_eur_fee_eur": 0.0,
         "spread_estimate_pct": 0.15,
-        "source_url": "",
+        "source_url": "https://www.binance.com/en/fee/trading",
     },
     "Bybit": {
         "trading_fee_pct": 0.10,
@@ -54,7 +54,7 @@ DEFAULT_FEES_BY_NAME = {
         "deposit_ideal_fee_eur": 0.0,
         "withdraw_eur_fee_eur": 0.0,
         "spread_estimate_pct": 0.20,
-        "source_url": "",
+        "source_url": "https://www.bybit.com/en/help-center/article/Bybit-Spot-Fees-Explained",
     },
     "Kraken": {
         "trading_fee_pct": 0.26,
@@ -63,7 +63,7 @@ DEFAULT_FEES_BY_NAME = {
         "deposit_ideal_fee_eur": 0.0,
         "withdraw_eur_fee_eur": 0.0,
         "spread_estimate_pct": 0.20,
-        "source_url": "",
+        "source_url": "https://www.kraken.com/features/fee-schedule",
     },
     "Coinbase": {
         "trading_fee_pct": 0.60,
@@ -72,7 +72,7 @@ DEFAULT_FEES_BY_NAME = {
         "deposit_ideal_fee_eur": 0.0,
         "withdraw_eur_fee_eur": 0.0,
         "spread_estimate_pct": 0.80,
-        "source_url": "",
+        "source_url": "https://help.coinbase.com/en/coinbase/trading-and-funding/advanced-trade/advanced-trade-fees",
     },
     "Coinmerce": {
         "trading_fee_pct": 0.0,
@@ -117,7 +117,7 @@ DEFAULT_FEES_BY_NAME = {
         "deposit_ideal_fee_eur": 0.0,
         "withdraw_eur_fee_eur": 0.0,
         "spread_estimate_pct": 0.15,
-        "source_url": "https://www.okx.com/en-us/learn/what-is-okx-spot-fees",
+        "source_url": "https://www.okx.com/help/fee-details",
     },
 }
 
@@ -187,6 +187,7 @@ def init_db() -> None:
         _ensure_quote_indexes(con)
         _ensure_seed_steps_table(con)
         _apply_incremental_seed_steps(con)
+        _backfill_default_metadata(con)
 
         con.commit()
     finally:
@@ -260,6 +261,14 @@ def _ensure_seed_steps_table(con: sqlite3.Connection) -> None:
         )
         """
     )
+
+
+def _default_affiliate_urls_by_name() -> dict[str, str]:
+    return {
+        str(name): str(affiliate_url)
+        for name, _, _, affiliate_url in DEFAULT_EXCHANGES
+        if str(affiliate_url or "").strip()
+    }
 
 
 def _needs_fk_cascade_migration(con: sqlite3.Connection) -> bool:
@@ -431,6 +440,41 @@ def _apply_incremental_seed_steps(con: sqlite3.Connection) -> None:
         "INSERT OR IGNORE INTO seed_steps(name, applied_at) VALUES (?, ?)",
         (step_name, _now_utc_iso()),
     )
+
+
+def _backfill_default_metadata(con: sqlite3.Connection) -> None:
+    cur = con.cursor()
+    now = _now_utc_iso()
+
+    for name, affiliate_url in _default_affiliate_urls_by_name().items():
+        cur.execute(
+            """
+            UPDATE exchanges
+            SET affiliate_url = ?
+            WHERE name = ?
+              AND COALESCE(TRIM(affiliate_url), '') = ''
+            """,
+            (affiliate_url, name),
+        )
+
+    for name, fee_defaults in DEFAULT_FEES_BY_NAME.items():
+        source_url = str(fee_defaults.get("source_url", "") or "").strip()
+        if not source_url:
+            continue
+
+        cur.execute(
+            """
+            UPDATE fees
+            SET source_url = ?,
+                updated_at = CASE
+                    WHEN COALESCE(TRIM(updated_at), '') = '' THEN ?
+                    ELSE updated_at
+                END
+            WHERE exchange_id = (SELECT id FROM exchanges WHERE name = ?)
+              AND COALESCE(TRIM(source_url), '') = ''
+            """,
+            (source_url, now, name),
+        )
 
 
 def get_exchange_by_name(con: sqlite3.Connection, name: str) -> sqlite3.Row | None:
