@@ -10,6 +10,7 @@ from db import (
     get_exchange_by_name,
     get_latest_quote,
     list_exchange_fee_rows,
+    update_exchange,
     upsert_fee_row,
     insert_quote,
 )
@@ -30,9 +31,16 @@ def add_exchange_with_defaults(
     name: str,
     exchange_type: str,
     website: str,
+    affiliate_url: str = "",
 ) -> int:
     try:
-        return create_exchange(con, name=name, exchange_type=exchange_type, website=website)
+        return create_exchange(
+            con,
+            name=name,
+            exchange_type=exchange_type,
+            website=website,
+            affiliate_url=affiliate_url,
+        )
     except sqlite3.IntegrityError as exc:
         raise ServiceError(f"Exchange already exists: {name}") from exc
     except (sqlite3.Error, ValueError) as exc:
@@ -47,6 +55,8 @@ def save_exchange_fees(
     withdraw_eur_fee_eur: float,
     spread_estimate_pct: float,
     source_url: str,
+    maker_fee_pct: float | None = None,
+    taker_fee_pct: float | None = None,
 ) -> None:
     try:
         upsert_fee_row(
@@ -57,9 +67,37 @@ def save_exchange_fees(
             withdraw_eur_fee_eur=withdraw_eur_fee_eur,
             spread_estimate_pct=spread_estimate_pct,
             source_url=source_url,
+            maker_fee_pct=maker_fee_pct,
+            taker_fee_pct=taker_fee_pct,
         )
     except (sqlite3.Error, ValueError) as exc:
         raise ServiceError(f"Could not save fees: {exc}") from exc
+
+
+def save_exchange_details(
+    con: sqlite3.Connection,
+    exchange_id: int,
+    name: str,
+    exchange_type: str,
+    website: str,
+    affiliate_url: str = "",
+) -> None:
+    try:
+        updated = update_exchange(
+            con,
+            exchange_id=exchange_id,
+            name=name,
+            exchange_type=exchange_type,
+            website=website,
+            affiliate_url=affiliate_url,
+        )
+    except sqlite3.IntegrityError as exc:
+        raise ServiceError(f"Could not save exchange details: {exc}") from exc
+    except (sqlite3.Error, ValueError) as exc:
+        raise ServiceError(f"Could not save exchange details: {exc}") from exc
+
+    if not updated:
+        raise ServiceError("Exchange not found.")
 
 
 def delete_exchange_cascade(con: sqlite3.Connection, exchange_id: int) -> None:
@@ -101,6 +139,8 @@ def build_comparison_dataframe(
     for row in rows:
         ex_id = int(row["id"])
         q = get_latest_quote(con, exchange_id=ex_id, symbol=symbol)
+        taker_fee_pct = float(row["taker_fee_pct"])
+        maker_fee_pct = float(row["maker_fee_pct"])
 
         if q:
             bid = float(q["bid"])
@@ -114,7 +154,7 @@ def build_comparison_dataframe(
 
         total_pct, total_eur = compute_total_cost(
             spread_pct=spread_pct,
-            fee_pct=float(row["trading_fee_pct"]),
+            fee_pct=taker_fee_pct,
             amount_eur=amount,
         )
 
@@ -122,7 +162,9 @@ def build_comparison_dataframe(
             {
                 "Exchange": row["name"],
                 "Type": row["type"],
-                "Fee %": round(float(row["trading_fee_pct"]), 6),
+                "Fee %": round(taker_fee_pct, 6),
+                "Maker fee %": round(maker_fee_pct, 6),
+                "Taker fee %": round(taker_fee_pct, 6),
                 "Spread %": round(float(spread_pct), 6),
                 "Total %": round(float(total_pct), 6),
                 f"Total € (op €{amount})": round(float(total_eur), 2),
@@ -131,7 +173,9 @@ def build_comparison_dataframe(
                 "Spread source": spread_source,
                 "Fees updated": row["updated_at"],
                 "Website": row["website"],
+                "Fee source": row["source_url"] or "",
                 "Source": row["source_url"] or "",
+                "Affiliate URL": row["affiliate_url"] or "",
             }
         )
 

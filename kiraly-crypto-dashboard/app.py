@@ -1,6 +1,7 @@
-from pathlib import Path
+import html
 import os
 import platform
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
@@ -8,7 +9,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 
-from collectors import get_collector, get_supported_exchange_names
+from collectors import get_collector, get_market_data_source_links, get_supported_exchange_names
 from db import DB_PATH, connect, ensure_seed_data, get_fee_row, init_db, list_exchanges
 from fees_service import (
     ServiceError,
@@ -16,10 +17,11 @@ from fees_service import (
     build_comparison_dataframe,
     delete_exchange_cascade,
     fetch_and_store_bitvavo_quote,
+    save_exchange_details,
     save_exchange_fees,
 )
 
-LIVE_EXCHANGES = ("Bitvavo", "Kraken", "Coinbase", "Binance", "Bybit")
+LIVE_EXCHANGES = ("Bitvavo", "Kraken", "Coinbase", "Binance", "Bybit", "OKX")
 
 st.set_page_config(
     page_title="KiralyAI | Crypto Exchange Cost Dashboard",
@@ -246,7 +248,7 @@ def apply_light_style() -> None:
 
         .exchange-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 12px;
             margin-top: 10px;
         }
@@ -300,6 +302,33 @@ def apply_light_style() -> None:
         .kiraly-subtle {
             color: #64748B;
             font-size: 0.95rem;
+        }
+
+        .exchange-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .exchange-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 11px;
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            border-radius: 999px;
+        }
+
+        .exchange-link a {
+            color: #1D4ED8;
+            font-size: 0.84rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .exchange-link a:hover {
+            text-decoration: underline;
         }
 
         div[data-testid="stDataFrame"] {
@@ -479,7 +508,7 @@ def render_controls(con):
 
 
 def render_admin(con) -> None:
-    st.subheader("Admin: Fees aanpassen")
+    st.subheader("Admin: fees and links")
 
     with st.expander("Open fee editor", expanded=False):
         with st.container(border=True):
@@ -488,6 +517,10 @@ def render_admin(con) -> None:
                 new_exchange_name = st.text_input("Name", key="new_exchange_name")
                 new_exchange_type = st.selectbox("Type", ["exchange", "broker"], key="new_exchange_type")
                 new_exchange_website = st.text_input("Website", key="new_exchange_website")
+                new_exchange_affiliate_url = st.text_input(
+                    "Affiliate URL",
+                    key="new_exchange_affiliate_url",
+                )
                 add_exchange_submitted = st.form_submit_button("Add exchange")
 
             if add_exchange_submitted:
@@ -497,6 +530,7 @@ def render_admin(con) -> None:
                         name=new_exchange_name,
                         exchange_type=new_exchange_type,
                         website=new_exchange_website,
+                        affiliate_url=new_exchange_affiliate_url,
                     )
                     st.success(f"Added exchange: {new_exchange_name.strip()}")
                     st.rerun()
@@ -516,29 +550,52 @@ def render_admin(con) -> None:
             ex_name_to_id = {str(ex["name"]): int(ex["id"]) for ex in exchanges}
             selected_name = st.selectbox("Exchange", list(ex_name_to_id.keys()))
             selected_id = ex_name_to_id[selected_name]
+            selected_exchange = next(ex for ex in exchanges if int(ex["id"]) == selected_id)
 
             fee_row = get_fee_row(con, selected_id)
             if fee_row:
-                trading_fee_pct = float(fee_row["trading_fee_pct"])
+                maker_fee_pct = float(fee_row["maker_fee_pct"])
+                taker_fee_pct = float(fee_row["taker_fee_pct"])
                 deposit_ideal_fee_eur = float(fee_row["deposit_ideal_fee_eur"])
                 withdraw_eur_fee_eur = float(fee_row["withdraw_eur_fee_eur"])
                 spread_estimate_pct = float(fee_row["spread_estimate_pct"])
                 source_url = str(fee_row["source_url"] or "")
             else:
-                trading_fee_pct = 0.0
+                maker_fee_pct = 0.0
+                taker_fee_pct = 0.0
                 deposit_ideal_fee_eur = 0.0
                 withdraw_eur_fee_eur = 0.0
                 spread_estimate_pct = 0.0
                 source_url = ""
 
+            st.markdown("#### Edit exchange")
+            profile_col_a, profile_col_b = st.columns(2)
+            with profile_col_a:
+                new_website = st.text_input(
+                    "Website",
+                    value=str(selected_exchange["website"] or ""),
+                )
+            with profile_col_b:
+                new_affiliate_url = st.text_input(
+                    "Affiliate URL",
+                    value=str(selected_exchange["affiliate_url"] or ""),
+                )
+
             col_a, col_b = st.columns(2)
             with col_a:
-                new_trading_fee = st.number_input(
-                    "Trading fee %",
-                    value=trading_fee_pct,
+                new_maker_fee = st.number_input(
+                    "Maker fee %",
+                    value=maker_fee_pct,
                     step=0.01,
                     format="%.4f",
-                    help="Gebruik hier je default (taker/instant) fee percentage.",
+                    help="Shown for transparency, but not used in total-cost ranking.",
+                )
+                new_taker_fee = st.number_input(
+                    "Taker fee %",
+                    value=taker_fee_pct,
+                    step=0.01,
+                    format="%.4f",
+                    help="Used for total-cost ranking and mirrored into trading_fee_pct.",
                 )
                 new_spread_est = st.number_input(
                     "Spread estimate %",
@@ -561,20 +618,31 @@ def render_admin(con) -> None:
                     format="%.2f",
                 )
 
-            new_source = st.text_input("Source URL", value=source_url)
+            new_source = st.text_input("Fee source URL", value=source_url)
 
-            if st.button("Save fees"):
+            if st.button("Save exchange settings"):
                 try:
+                    save_exchange_details(
+                        con,
+                        exchange_id=selected_id,
+                        name=str(selected_exchange["name"]),
+                        exchange_type=str(selected_exchange["type"]),
+                        website=new_website,
+                        affiliate_url=new_affiliate_url,
+                    )
                     save_exchange_fees(
                         con,
                         exchange_id=selected_id,
-                        trading_fee_pct=float(new_trading_fee),
+                        trading_fee_pct=float(new_taker_fee),
                         deposit_ideal_fee_eur=float(new_ideal_fee),
                         withdraw_eur_fee_eur=float(new_withdraw_fee),
                         spread_estimate_pct=float(new_spread_est),
                         source_url=new_source,
+                        maker_fee_pct=float(new_maker_fee),
+                        taker_fee_pct=float(new_taker_fee),
                     )
-                    st.success(f"Saved fees for {selected_name}")
+                    st.success(f"Saved exchange settings for {selected_name}")
+                    st.rerun()
                 except ServiceError as exc:
                     st.error(str(exc))
 
@@ -633,6 +701,76 @@ def _format_ts_short(value: str) -> str:
     except Exception:
         return str(value)
 
+
+def _normalize_link_url(value: object) -> str:
+    url = str(value or "").strip()
+    if url.startswith("http://") or url.startswith("https://"):
+        return url
+    return ""
+
+
+def _build_link_html(label: str, url: str) -> str:
+    safe_label = html.escape(label)
+    safe_url = html.escape(url, quote=True)
+    return (
+        f'<a href="{safe_url}" target="_blank" rel="noopener noreferrer">{safe_label}</a>'
+    )
+
+
+def _get_market_links_for_row(row: pd.Series, symbol: str) -> list[dict[str, str]]:
+    return get_market_data_source_links(
+        str(row["Exchange"]),
+        symbol=symbol,
+        spread_source=str(row.get("Spread source", "")),
+    )
+
+
+def _build_exchange_links_html(row: pd.Series, symbol: str) -> str:
+    link_html_parts: list[str] = []
+
+    website_url = _normalize_link_url(row.get("Website", ""))
+    if website_url:
+        link_html_parts.append(_build_link_html("Website", website_url))
+
+    for item in _get_market_links_for_row(row, symbol):
+        item_url = _normalize_link_url(item.get("url"))
+        if item_url:
+            link_html_parts.append(_build_link_html(item.get("label", "Market API"), item_url))
+
+    fee_source_url = _normalize_link_url(row.get("Fee source", row.get("Source", "")))
+    if fee_source_url:
+        link_html_parts.append(_build_link_html("Fee source", fee_source_url))
+
+    affiliate_url = _normalize_link_url(row.get("Affiliate URL", ""))
+    if affiliate_url:
+        link_html_parts.append(_build_link_html("Affiliate", affiliate_url))
+
+    if not link_html_parts:
+        return ""
+
+    return (
+        '<div class="exchange-links">'
+        + "".join(
+            f'<span class="exchange-link">{link_html}</span>'
+            for link_html in link_html_parts
+        )
+        + "</div>"
+    )
+
+
+def _get_market_link_columns(
+    exchange_name: str,
+    symbol: str,
+    spread_source: str,
+) -> tuple[str, str]:
+    links = get_market_data_source_links(
+        exchange_name,
+        symbol=symbol,
+        spread_source=spread_source,
+    )
+    market_api = _normalize_link_url(links[0]["url"]) if links else ""
+    reference_api = _normalize_link_url(links[1]["url"]) if len(links) > 1 else ""
+    return market_api, reference_api
 
 
 def _source_badge(source: str) -> str:
@@ -724,7 +862,7 @@ def render_summary_cards(df: pd.DataFrame, amount: int) -> None:
         )
 
 
-def render_exchange_cards(df: pd.DataFrame, amount: int) -> None:
+def render_exchange_cards(df: pd.DataFrame, symbol: str, amount: int) -> None:
     if df.empty:
         st.info("No comparison data available.")
         return
@@ -742,6 +880,7 @@ def render_exchange_cards(df: pd.DataFrame, amount: int) -> None:
         best_badge = '<span class="badge badge-best">Best price</span>' if i == 1 else ""
         source_badge = _source_badge(row.get("Spread source", ""))
         source_text = str(row.get("Spread source", "")).split("(")[0].strip().title() or "—"
+        link_html = _build_exchange_links_html(row, symbol)
 
         st.markdown(
             f"""
@@ -759,8 +898,12 @@ def render_exchange_cards(df: pd.DataFrame, amount: int) -> None:
                 </div>
                 <div class="exchange-grid">
                     <div class="mini-stat">
-                        <div class="mini-stat-label">Trading fee</div>
-                        <div class="mini-stat-value">{_format_pct(float(row["Fee %"]))}</div>
+                        <div class="mini-stat-label">Maker fee</div>
+                        <div class="mini-stat-value">{_format_pct(float(row["Maker fee %"]))}</div>
+                    </div>
+                    <div class="mini-stat">
+                        <div class="mini-stat-label">Taker fee</div>
+                        <div class="mini-stat-value">{_format_pct(float(row["Taker fee %"]))}</div>
                     </div>
                     <div class="mini-stat">
                         <div class="mini-stat-label">Spread</div>
@@ -775,6 +918,7 @@ def render_exchange_cards(df: pd.DataFrame, amount: int) -> None:
                         <div class="mini-stat-value">{source_text}</div>
                     </div>
                 </div>
+                {link_html}
             </div>
             """,
             unsafe_allow_html=True,
@@ -795,13 +939,27 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
             return
 
         total_col = _resolve_total_column(df, amount)
-        df_display = df.copy()
+        df_export = df.copy()
+        market_links = df_export.apply(
+            lambda row: _get_market_link_columns(
+                str(row["Exchange"]),
+                symbol,
+                str(row.get("Spread source", "")),
+            ),
+            axis=1,
+        )
+        df_export["Market API"] = market_links.map(lambda links: links[0])
+        df_export["Reference API"] = market_links.map(lambda links: links[1])
+
+        df_display = df_export.copy()
         df_display.insert(0, "Status", "")
 
         cheapest_idx = df_display[total_col].idxmin()
         df_display.loc[cheapest_idx, "Status"] = "Cheapest"
 
-        for col in ["Fee %", "Spread %", "Total %"]:
+        df_display = df_display.drop(columns=["Fee %", "Source"], errors="ignore")
+
+        for col in ["Maker fee %", "Taker fee %", "Spread %", "Total %"]:
             if col in df_display.columns:
                 df_display[col] = df_display[col].map(_format_pct)
 
@@ -812,7 +970,7 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
         st.dataframe(df_display, width="stretch")
         st.download_button(
             "Export CSV",
-            data=df.to_csv(index=False).encode("utf-8"),
+            data=df_export.to_csv(index=False).encode("utf-8"),
             file_name=f"crypto_fee_comparison_{symbol}_{amount}.csv",
             mime="text/csv",
         )
@@ -909,7 +1067,7 @@ if not df.empty:
 
 render_summary_cards(df, amount=int(amount))
 st.markdown("")
-render_exchange_cards(df, amount=int(amount))
+render_exchange_cards(df, symbol=symbol, amount=int(amount))
 render_details_table(df, symbol=symbol, amount=int(amount))
 
 if ADMIN_MODE:
@@ -919,7 +1077,7 @@ if ADMIN_MODE:
     render_admin(con)
 
 st.caption(
-    "Tip: fee percentages are database-based, while market spreads and quote sources are refreshed from live market data."
+    "Tip: total-cost ranking uses taker fees from the database, while spreads and market/API sources are refreshed from live data."
     if ADMIN_MODE
     else ""
 )
