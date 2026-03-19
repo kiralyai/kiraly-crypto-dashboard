@@ -128,6 +128,10 @@ TRANSLATIONS = {
         "error_delete_exchange": "Kon exchange niet verwijderen: {error}",
         "error_exchange_missing_seed": "{name} staat niet in exchanges. Run scripts/init_db.py",
         "error_fetch_store_quote": "Kon quote voor {name} niet ophalen/opslaan: {error}",
+        "footer_primary": "Ontwikkeld door KiralyAI — AI-tools, automatiseringen en moderne websites voor groeiende bedrijven.",
+        "footer_secondary_prefix": "Meer projecten en oplossingen bekijken? Bezoek ",
+        "footer_secondary_link_label": "KiralyAI",
+        "footer_secondary_suffix": ".",
     },
     "en": {
         "page_title": "KiralyAI | Crypto Exchange Cost Dashboard",
@@ -229,6 +233,10 @@ TRANSLATIONS = {
         "error_delete_exchange": "Could not delete exchange: {error}",
         "error_exchange_missing_seed": "{name} is not in exchanges. Run scripts/init_db.py",
         "error_fetch_store_quote": "Could not fetch/store {name} quote: {error}",
+        "footer_primary": "Built by KiralyAI — AI tools, automations, and modern websites for growing businesses.",
+        "footer_secondary_prefix": "Explore more projects and solutions at ",
+        "footer_secondary_link_label": "KiralyAI",
+        "footer_secondary_suffix": ".",
     },
 }
 
@@ -600,6 +608,36 @@ def apply_light_style() -> None:
         }
 
         .exchange-link a:hover {
+            text-decoration: underline;
+        }
+
+        .site-footer {
+            margin-top: 52px;
+            padding: 26px 12px 6px;
+            border-top: 1px solid #D7DFEA;
+            text-align: center;
+        }
+
+        .site-footer-primary {
+            color: #64748B;
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .site-footer-secondary {
+            color: #94A3B8;
+            font-size: 0.82rem;
+            margin-top: 6px;
+            line-height: 1.6;
+        }
+
+        .site-footer-secondary a {
+            color: #475569;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .site-footer-secondary a:hover {
             text-decoration: underline;
         }
 
@@ -1421,6 +1459,27 @@ def render_debug(con, symbol: str) -> None:
     )
 
 
+def render_site_footer() -> None:
+    footer_url = "https://kiralyai.com"
+    footer_primary = html.escape(t("footer_primary"))
+    footer_secondary_prefix = html.escape(t("footer_secondary_prefix"))
+    footer_secondary_link_label = html.escape(t("footer_secondary_link_label"))
+    footer_secondary_suffix = html.escape(t("footer_secondary_suffix"))
+    footer_url_safe = html.escape(footer_url, quote=True)
+
+    st.markdown(
+        f"""
+        <div class="site-footer">
+            <div class="site-footer-primary">{footer_primary}</div>
+            <div class="site-footer-secondary">
+                {footer_secondary_prefix}<a href="{footer_url_safe}" target="_blank" rel="noopener noreferrer">{footer_secondary_link_label}</a>{footer_secondary_suffix}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 apply_light_style()
 render_header()
 
@@ -1492,5 +1551,6 @@ st.caption(
     if ADMIN_MODE
     else ""
 )
+render_site_footer()
 
 con.close()
