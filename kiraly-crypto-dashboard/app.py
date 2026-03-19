@@ -21,10 +21,282 @@ from fees_service import (
     save_exchange_fees,
 )
 
+DEFAULT_LANGUAGE = "nl"
+LANGUAGE_OPTIONS = {
+    "nl": "Nederlands",
+    "en": "English",
+}
+
+TRANSLATIONS = {
+    "nl": {
+        "page_title": "KiralyAI | Crypto Exchange Kosten Dashboard",
+        "language_label": "Taal",
+        "hero_chip": "Live marktoverzicht",
+        "hero_title": "Crypto Exchange Kosten Dashboard",
+        "hero_subtitle": "Vergelijk de totale EUR-kosten van BTC kopen bij grote exchanges. Zie direct waar je het voordeligst uit bent, met live spread en fee-impact.",
+        "pair_label": "Handelspaar",
+        "investment_amount_label": "Investeringsbedrag",
+        "market_data_label": "Marktdata",
+        "refresh_market_data_button": "Marktdata verversen",
+        "refresh_success": "Marktdata bijgewerkt voor: {exchanges}",
+        "some_exchanges_failed": "Sommige exchanges mislukten: {details}",
+        "admin_title": "Admin: fees en links",
+        "fee_editor_expander": "Open fee-editor",
+        "add_exchange_heading": "Exchange toevoegen (admin)",
+        "name_label": "Naam",
+        "type_label": "Type",
+        "website_label": "Website",
+        "affiliate_url_label": "Affiliate URL",
+        "add_exchange_button": "Exchange toevoegen",
+        "exchange_added_success": "Exchange toegevoegd: {name}",
+        "load_exchanges_error": "Kon exchanges niet laden: {error}",
+        "no_exchanges_found": "Geen exchanges gevonden. Voeg er hierboven een toe.",
+        "exchange_label": "Exchange",
+        "edit_exchange_heading": "Exchange bewerken",
+        "maker_fee_pct_label": "Maker fee %",
+        "maker_fee_help": "Wordt getoond voor transparantie, maar niet gebruikt in de total-cost ranking.",
+        "taker_fee_pct_label": "Taker fee %",
+        "taker_fee_help": "Wordt gebruikt voor de total-cost ranking en gespiegeld naar trading_fee_pct.",
+        "spread_estimate_pct_label": "Spread-inschatting %",
+        "spread_estimate_help": "Fallback-spread als er geen live orderbook quote is.",
+        "ideal_fee_eur_label": "iDEAL stortingsfee (€)",
+        "eur_withdrawal_fee_label": "EUR opnamefee (€)",
+        "fee_source_url_label": "Feebron URL",
+        "save_exchange_settings_button": "Exchange-instellingen opslaan",
+        "save_exchange_settings_success": "Exchange-instellingen opgeslagen voor {name}",
+        "delete_exchange_heading": "Exchange verwijderen",
+        "delete_exchange_help": "Verwijder alleen exchanges die je niet meer wilt vergelijken.",
+        "exchange_to_delete_label": "Te verwijderen exchange",
+        "confirm_delete_label": "Ik begrijp dat dit gerelateerde fees en quotes verwijdert.",
+        "delete_exchange_button": "Exchange verwijderen",
+        "confirm_delete_warning": "Bevestig eerst het verwijderen voordat je doorgaat.",
+        "delete_exchange_success": "Exchange verwijderd: {name}",
+        "live_badge": "Live",
+        "fallback_badge": "Fallback",
+        "best_price_badge": "Beste prijs",
+        "rank_label": "Rang #{rank}",
+        "cheapest_exchange_label": "Goedkoopste exchange",
+        "total_cost_suffix": "totale kosten",
+        "lowest_total_cost_label": "Laagste totale kosten",
+        "based_on_amount": "Gebaseerd op € {amount}",
+        "best_spread_label": "Beste spread",
+        "latest_market_update_label": "Laatste marktupdate",
+        "most_recent_visible_quote_label": "Meest recente zichtbare quote",
+        "no_comparison_data": "Geen vergelijkingsdata beschikbaar.",
+        "ranked_exchanges_title": "Gerangschikte exchanges",
+        "ranked_exchanges_subtitle": "Een overzichtelijker beeld van de totale BTC-aankoopkosten over alle ondersteunde platforms.",
+        "total_cost_on_amount": "Totale kosten op € {amount}",
+        "maker_fee_pct_short": "Maker fee %",
+        "taker_fee_pct_short": "Taker fee %",
+        "used_fee_pct_short": "Gebruikte fee %",
+        "spread_pct_short": "Spread %",
+        "total_pct_short": "Totaal %",
+        "quote_source_label": "Quotebron",
+        "details_expander_label": "Gedetailleerde vergelijkingsdata openen",
+        "export_csv_button": "CSV exporteren",
+        "status_label": "Status",
+        "status_cheapest": "Goedkoopste",
+        "exchange_col": "Exchange",
+        "type_col": "Type",
+        "type_value_exchange": "Exchange",
+        "type_value_broker": "Broker",
+        "ideal_fee_col": "iDEAL fee €",
+        "eur_withdrawal_fee_col": "EUR opname €",
+        "fees_updated_col": "Fees bijgewerkt",
+        "api_source_col": "API-bron",
+        "fx_reference_col": "FX-referentie",
+        "fee_source_col": "Feebron",
+        "total_eur_col": "Totaal € (op €{amount})",
+        "debug_title": "Debug",
+        "db_label": "DB:",
+        "streamlit_cloud_mode_label": "Streamlit Cloud-modus:",
+        "live_exchanges_label": "Live exchanges:",
+        "exchanges_label": "Exchanges:",
+        "quote_count_col": "Aantal quotes",
+        "latest_ts_col": "Laatste ts",
+        "live_quote_refresh_issues": "Problemen bij live quote refresh: {details}",
+        "unexpected_dashboard_error": "Onverwachte fout tijdens het bouwen van het dashboard: {error}",
+        "admin_tip_caption": "Tip: de totale ranking gebruikt taker fees uit de database, terwijl spreads en markt/API-bronnen live worden ververst.",
+        "source_live": "Live",
+        "source_fallback": "Fallback",
+        "source_estimate": "Schatting",
+        "error_exchange_exists": "Exchange bestaat al: {name}",
+        "error_add_exchange": "Kon exchange niet toevoegen: {error}",
+        "error_save_fees": "Kon fees niet opslaan: {error}",
+        "error_save_exchange_details": "Kon exchangegegevens niet opslaan: {error}",
+        "error_exchange_not_found": "Exchange niet gevonden.",
+        "error_delete_exchange": "Kon exchange niet verwijderen: {error}",
+        "error_exchange_missing_seed": "{name} staat niet in exchanges. Run scripts/init_db.py",
+        "error_fetch_store_quote": "Kon quote voor {name} niet ophalen/opslaan: {error}",
+    },
+    "en": {
+        "page_title": "KiralyAI | Crypto Exchange Cost Dashboard",
+        "language_label": "Language",
+        "hero_chip": "Live market overview",
+        "hero_title": "Crypto Exchange Cost Dashboard",
+        "hero_subtitle": "Compare the total EUR cost of buying BTC across major exchanges. See the cheapest venue instantly, with live spread and fee impact.",
+        "pair_label": "Pair",
+        "investment_amount_label": "Investment amount",
+        "market_data_label": "Market data",
+        "refresh_market_data_button": "Refresh market data",
+        "refresh_success": "Updated market data for: {exchanges}",
+        "some_exchanges_failed": "Some exchanges failed: {details}",
+        "admin_title": "Admin: fees and links",
+        "fee_editor_expander": "Open fee editor",
+        "add_exchange_heading": "Add exchange (admin)",
+        "name_label": "Name",
+        "type_label": "Type",
+        "website_label": "Website",
+        "affiliate_url_label": "Affiliate URL",
+        "add_exchange_button": "Add exchange",
+        "exchange_added_success": "Added exchange: {name}",
+        "load_exchanges_error": "Could not load exchanges: {error}",
+        "no_exchanges_found": "No exchanges found. Add one above.",
+        "exchange_label": "Exchange",
+        "edit_exchange_heading": "Edit exchange",
+        "maker_fee_pct_label": "Maker fee %",
+        "maker_fee_help": "Shown for transparency, but not used in total-cost ranking.",
+        "taker_fee_pct_label": "Taker fee %",
+        "taker_fee_help": "Used for total-cost ranking and mirrored into trading_fee_pct.",
+        "spread_estimate_pct_label": "Spread estimate %",
+        "spread_estimate_help": "Fallback spread when no live orderbook quote is available.",
+        "ideal_fee_eur_label": "iDEAL deposit fee (€)",
+        "eur_withdrawal_fee_label": "EUR withdrawal fee (€)",
+        "fee_source_url_label": "Fee source URL",
+        "save_exchange_settings_button": "Save exchange settings",
+        "save_exchange_settings_success": "Saved exchange settings for {name}",
+        "delete_exchange_heading": "Delete exchange",
+        "delete_exchange_help": "Only remove exchanges you no longer want to compare.",
+        "exchange_to_delete_label": "Exchange to delete",
+        "confirm_delete_label": "I understand this will delete related fees and quotes.",
+        "delete_exchange_button": "Delete exchange",
+        "confirm_delete_warning": "Please confirm delete before continuing.",
+        "delete_exchange_success": "Deleted exchange: {name}",
+        "live_badge": "Live",
+        "fallback_badge": "Fallback",
+        "best_price_badge": "Best price",
+        "rank_label": "Rank #{rank}",
+        "cheapest_exchange_label": "Cheapest exchange",
+        "total_cost_suffix": "total cost",
+        "lowest_total_cost_label": "Lowest total cost",
+        "based_on_amount": "Based on € {amount}",
+        "best_spread_label": "Best spread",
+        "latest_market_update_label": "Latest market update",
+        "most_recent_visible_quote_label": "Most recent visible quote",
+        "no_comparison_data": "No comparison data available.",
+        "ranked_exchanges_title": "Ranked exchanges",
+        "ranked_exchanges_subtitle": "A cleaner view of the total BTC purchase cost across all supported venues.",
+        "total_cost_on_amount": "Total cost on € {amount}",
+        "maker_fee_pct_short": "Maker fee %",
+        "taker_fee_pct_short": "Taker fee %",
+        "used_fee_pct_short": "Used fee %",
+        "spread_pct_short": "Spread %",
+        "total_pct_short": "Total %",
+        "quote_source_label": "Quote source",
+        "details_expander_label": "Open detailed comparison data",
+        "export_csv_button": "Export CSV",
+        "status_label": "Status",
+        "status_cheapest": "Cheapest",
+        "exchange_col": "Exchange",
+        "type_col": "Type",
+        "type_value_exchange": "Exchange",
+        "type_value_broker": "Broker",
+        "ideal_fee_col": "iDEAL fee €",
+        "eur_withdrawal_fee_col": "EUR withdrawal €",
+        "fees_updated_col": "Fees updated",
+        "api_source_col": "API source",
+        "fx_reference_col": "FX reference",
+        "fee_source_col": "Fee source",
+        "total_eur_col": "Total € (on €{amount})",
+        "debug_title": "Debug",
+        "db_label": "DB:",
+        "streamlit_cloud_mode_label": "Streamlit Cloud mode:",
+        "live_exchanges_label": "Live exchanges:",
+        "exchanges_label": "Exchanges:",
+        "quote_count_col": "Quote count",
+        "latest_ts_col": "Latest ts",
+        "live_quote_refresh_issues": "Live quote refresh issues: {details}",
+        "unexpected_dashboard_error": "Unexpected error while building dashboard: {error}",
+        "admin_tip_caption": "Tip: total-cost ranking uses taker fees from the database, while spreads and market/API sources are refreshed from live data.",
+        "source_live": "Live",
+        "source_fallback": "Fallback",
+        "source_estimate": "Estimate",
+        "error_exchange_exists": "Exchange already exists: {name}",
+        "error_add_exchange": "Could not add exchange: {error}",
+        "error_save_fees": "Could not save fees: {error}",
+        "error_save_exchange_details": "Could not save exchange details: {error}",
+        "error_exchange_not_found": "Exchange not found.",
+        "error_delete_exchange": "Could not delete exchange: {error}",
+        "error_exchange_missing_seed": "{name} is not in exchanges. Run scripts/init_db.py",
+        "error_fetch_store_quote": "Could not fetch/store {name} quote: {error}",
+    },
+}
+
+
+def _init_language_state() -> None:
+    if st.session_state.get("language") not in LANGUAGE_OPTIONS:
+        st.session_state["language"] = DEFAULT_LANGUAGE
+
+
+def _current_language() -> str:
+    language = st.session_state.get("language", DEFAULT_LANGUAGE)
+    return language if language in LANGUAGE_OPTIONS else DEFAULT_LANGUAGE
+
+
+def t(key: str, **kwargs) -> str:
+    _init_language_state()
+    language = _current_language()
+    template = TRANSLATIONS.get(language, TRANSLATIONS[DEFAULT_LANGUAGE]).get(
+        key,
+        TRANSLATIONS[DEFAULT_LANGUAGE].get(key, key),
+    )
+    try:
+        return str(template).format(**kwargs)
+    except Exception:
+        return str(template)
+
+
+def _translate_service_error_message(message: object) -> str:
+    raw = str(message or "").strip()
+    if not raw:
+        return ""
+
+    if raw == "Exchange not found.":
+        return t("error_exchange_not_found")
+
+    if raw.endswith(" staat niet in exchanges. Run scripts/init_db.py"):
+        exchange_name = raw.split(" staat niet in exchanges. Run scripts/init_db.py", 1)[0]
+        return t("error_exchange_missing_seed", name=exchange_name)
+
+    if raw.startswith("Exchange already exists: "):
+        return t("error_exchange_exists", name=raw.split(": ", 1)[1])
+
+    if raw.startswith("Could not add exchange: "):
+        return t("error_add_exchange", error=raw.split(": ", 1)[1])
+
+    if raw.startswith("Could not save fees: "):
+        return t("error_save_fees", error=raw.split(": ", 1)[1])
+
+    if raw.startswith("Could not save exchange details: "):
+        return t("error_save_exchange_details", error=raw.split(": ", 1)[1])
+
+    if raw.startswith("Could not delete exchange: "):
+        return t("error_delete_exchange", error=raw.split(": ", 1)[1])
+
+    if raw.startswith("Could not fetch/store ") and " quote: " in raw:
+        remainder = raw[len("Could not fetch/store "):]
+        exchange_name, error = remainder.split(" quote: ", 1)
+        return t("error_fetch_store_quote", name=exchange_name, error=error)
+
+    return raw
+
+
+_init_language_state()
+
 LIVE_EXCHANGES = ("Bitvavo", "Kraken", "Coinbase", "Bybit", "OKX")
 
 st.set_page_config(
-    page_title="KiralyAI | Crypto Exchange Cost Dashboard",
+    page_title=t("page_title"),
     page_icon="💰",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -387,7 +659,7 @@ def apply_light_style() -> None:
 
 def render_header() -> None:
     with st.container():
-        left_col, right_col = st.columns([1, 8], vertical_alignment="center")
+        left_col, center_col, right_col = st.columns([1, 6, 2.2], vertical_alignment="center")
 
         with left_col:
             try:
@@ -395,15 +667,29 @@ def render_header() -> None:
             except Exception:
                 pass
 
-        with right_col:
+        with center_col:
             st.markdown('<div class="hero-wrap">', unsafe_allow_html=True)
-            st.markdown('<div class="hero-chip">Live market overview</div>', unsafe_allow_html=True)
-            st.markdown('<div class="hero-title">Crypto Exchange Cost Dashboard</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="hero-chip">{t("hero_chip")}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="hero-title">{t("hero_title")}</div>', unsafe_allow_html=True)
             st.markdown(
-                '<div class="hero-subtitle">Compare the total EUR cost of buying BTC across major exchanges. See the cheapest venue instantly, with live spread and fee impact.</div>',
+                f'<div class="hero-subtitle">{t("hero_subtitle")}</div>',
                 unsafe_allow_html=True,
             )
             st.markdown("</div>", unsafe_allow_html=True)
+
+        with right_col:
+            st.markdown(
+                f'<div class="control-label">{t("language_label")}</div>',
+                unsafe_allow_html=True,
+            )
+            st.radio(
+                t("language_label"),
+                options=list(LANGUAGE_OPTIONS.keys()),
+                format_func=lambda language_code: LANGUAGE_OPTIONS.get(language_code, language_code),
+                horizontal=True,
+                key="language",
+                label_visibility="collapsed",
+            )
 
 
 def is_streamlit_cloud() -> bool:
@@ -471,18 +757,32 @@ def render_controls(con):
         c1, c2, c3 = st.columns([2, 2, 1.3], gap="small", vertical_alignment="bottom")
 
         with c1:
-            st.markdown('<div class="control-label">Pair</div>', unsafe_allow_html=True)
-            symbol = st.selectbox("Pair", ["BTC-EUR"], label_visibility="collapsed")
+            st.markdown(
+                f'<div class="control-label">{t("pair_label")}</div>',
+                unsafe_allow_html=True,
+            )
+            symbol = st.selectbox(t("pair_label"), ["BTC-EUR"], label_visibility="collapsed")
 
         with c2:
-            st.markdown('<div class="control-label">Investment amount</div>', unsafe_allow_html=True)
-            amount = st.selectbox("Amount", [100, 1000, 10000], index=1, label_visibility="collapsed")
+            st.markdown(
+                f'<div class="control-label">{t("investment_amount_label")}</div>',
+                unsafe_allow_html=True,
+            )
+            amount = st.selectbox(
+                t("investment_amount_label"),
+                [100, 1000, 10000],
+                index=1,
+                label_visibility="collapsed",
+            )
 
         with c3:
-            st.markdown('<div class="control-label">Market data</div>', unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="control-label">{t("market_data_label")}</div>',
+                unsafe_allow_html=True,
+            )
             exchange_names_for_fetch = _get_dashboard_exchanges(con)
             fetch_clicked = st.button(
-                "Refresh Market Data",
+                t("refresh_market_data_button"),
                 disabled=not exchange_names_for_fetch,
                 use_container_width=True,
             )
@@ -494,34 +794,46 @@ def render_controls(con):
             st.session_state["fallback_exchanges"] = fallback_used
 
             if refreshed:
-                st.success(f"Updated market quotes for: {', '.join(refreshed)}")
+                st.success(t("refresh_success", exchanges=", ".join(refreshed)))
 
             if failed:
                 failed = {name: err for name, err in failed.items() if name in LIVE_EXCHANGES}
                 if failed and ADMIN_MODE:
                     st.warning(
-                        "Some exchanges failed: "
-                        + "; ".join([f"{name}: {error}" for name, error in failed.items()])
+                        t(
+                            "some_exchanges_failed",
+                            details="; ".join(
+                                [
+                                    f"{name}: {_translate_service_error_message(error)}"
+                                    for name, error in failed.items()
+                                ]
+                            ),
+                        )
                     )
 
     return symbol, amount
 
 
 def render_admin(con) -> None:
-    st.subheader("Admin: fees and links")
+    st.subheader(t("admin_title"))
 
-    with st.expander("Open fee editor", expanded=False):
+    with st.expander(t("fee_editor_expander"), expanded=False):
         with st.container(border=True):
-            st.markdown("#### Add exchange (admin)")
+            st.markdown(f"#### {t('add_exchange_heading')}")
             with st.form("add_exchange_form", clear_on_submit=True):
-                new_exchange_name = st.text_input("Name", key="new_exchange_name")
-                new_exchange_type = st.selectbox("Type", ["exchange", "broker"], key="new_exchange_type")
-                new_exchange_website = st.text_input("Website", key="new_exchange_website")
+                new_exchange_name = st.text_input(t("name_label"), key="new_exchange_name")
+                new_exchange_type = st.selectbox(
+                    t("type_label"),
+                    ["exchange", "broker"],
+                    format_func=_translate_exchange_type,
+                    key="new_exchange_type",
+                )
+                new_exchange_website = st.text_input(t("website_label"), key="new_exchange_website")
                 new_exchange_affiliate_url = st.text_input(
-                    "Affiliate URL",
+                    t("affiliate_url_label"),
                     key="new_exchange_affiliate_url",
                 )
-                add_exchange_submitted = st.form_submit_button("Add exchange")
+                add_exchange_submitted = st.form_submit_button(t("add_exchange_button"))
 
             if add_exchange_submitted:
                 try:
@@ -532,23 +844,23 @@ def render_admin(con) -> None:
                         website=new_exchange_website,
                         affiliate_url=new_exchange_affiliate_url,
                     )
-                    st.success(f"Added exchange: {new_exchange_name.strip()}")
+                    st.success(t("exchange_added_success", name=new_exchange_name.strip()))
                     st.rerun()
                 except ServiceError as exc:
-                    st.error(str(exc))
+                    st.error(_translate_service_error_message(exc))
 
             try:
                 exchanges = list_exchanges(con)
             except Exception as exc:
                 exchanges = []
-                st.error(f"Could not load exchanges: {exc}")
+                st.error(t("load_exchanges_error", error=exc))
 
             if not exchanges:
-                st.info("No exchanges found. Add one above.")
+                st.info(t("no_exchanges_found"))
                 return
 
             ex_name_to_id = {str(ex["name"]): int(ex["id"]) for ex in exchanges}
-            selected_name = st.selectbox("Exchange", list(ex_name_to_id.keys()))
+            selected_name = st.selectbox(t("exchange_label"), list(ex_name_to_id.keys()))
             selected_id = ex_name_to_id[selected_name]
             selected_exchange = next(ex for ex in exchanges if int(ex["id"]) == selected_id)
 
@@ -568,59 +880,59 @@ def render_admin(con) -> None:
                 spread_estimate_pct = 0.0
                 source_url = ""
 
-            st.markdown("#### Edit exchange")
+            st.markdown(f"#### {t('edit_exchange_heading')}")
             profile_col_a, profile_col_b = st.columns(2)
             with profile_col_a:
                 new_website = st.text_input(
-                    "Website",
+                    t("website_label"),
                     value=str(selected_exchange["website"] or ""),
                 )
             with profile_col_b:
                 new_affiliate_url = st.text_input(
-                    "Affiliate URL",
+                    t("affiliate_url_label"),
                     value=str(selected_exchange["affiliate_url"] or ""),
                 )
 
             col_a, col_b = st.columns(2)
             with col_a:
                 new_maker_fee = st.number_input(
-                    "Maker fee %",
+                    t("maker_fee_pct_label"),
                     value=maker_fee_pct,
                     step=0.01,
                     format="%.4f",
-                    help="Shown for transparency, but not used in total-cost ranking.",
+                    help=t("maker_fee_help"),
                 )
                 new_taker_fee = st.number_input(
-                    "Taker fee %",
+                    t("taker_fee_pct_label"),
                     value=taker_fee_pct,
                     step=0.01,
                     format="%.4f",
-                    help="Used for total-cost ranking and mirrored into trading_fee_pct.",
+                    help=t("taker_fee_help"),
                 )
                 new_spread_est = st.number_input(
-                    "Spread estimate %",
+                    t("spread_estimate_pct_label"),
                     value=spread_estimate_pct,
                     step=0.01,
                     format="%.4f",
-                    help="Fallback spread als er geen live orderbook quote is.",
+                    help=t("spread_estimate_help"),
                 )
             with col_b:
                 new_ideal_fee = st.number_input(
-                    "iDEAL deposit fee (€)",
+                    t("ideal_fee_eur_label"),
                     value=deposit_ideal_fee_eur,
                     step=0.10,
                     format="%.2f",
                 )
                 new_withdraw_fee = st.number_input(
-                    "EUR withdrawal fee (€)",
+                    t("eur_withdrawal_fee_label"),
                     value=withdraw_eur_fee_eur,
                     step=0.10,
                     format="%.2f",
                 )
 
-            new_source = st.text_input("Fee source URL", value=source_url)
+            new_source = st.text_input(t("fee_source_url_label"), value=source_url)
 
-            if st.button("Save exchange settings"):
+            if st.button(t("save_exchange_settings_button")):
                 try:
                     save_exchange_details(
                         con,
@@ -641,38 +953,38 @@ def render_admin(con) -> None:
                         maker_fee_pct=float(new_maker_fee),
                         taker_fee_pct=float(new_taker_fee),
                     )
-                    st.success(f"Saved exchange settings for {selected_name}")
+                    st.success(t("save_exchange_settings_success", name=selected_name))
                     st.rerun()
                 except ServiceError as exc:
-                    st.error(str(exc))
+                    st.error(_translate_service_error_message(exc))
 
-            st.markdown("#### Delete exchange")
+            st.markdown(f"#### {t('delete_exchange_heading')}")
             st.markdown(
-                '<div class="kiraly-subtle">Only remove exchanges you no longer want to compare.</div>',
+                f'<div class="kiraly-subtle">{t("delete_exchange_help")}</div>',
                 unsafe_allow_html=True,
             )
             with st.form("delete_exchange_form"):
                 delete_exchange_name = st.selectbox(
-                    "Exchange to delete",
+                    t("exchange_to_delete_label"),
                     list(ex_name_to_id.keys()),
                     key="delete_exchange_name",
                 )
                 confirm_delete = st.checkbox(
-                    "I understand this will delete related fees and quotes.",
+                    t("confirm_delete_label"),
                     key="confirm_delete_exchange",
                 )
-                delete_exchange_submitted = st.form_submit_button("Delete exchange")
+                delete_exchange_submitted = st.form_submit_button(t("delete_exchange_button"))
 
             if delete_exchange_submitted:
                 if not confirm_delete:
-                    st.warning("Please confirm delete before continuing.")
+                    st.warning(t("confirm_delete_warning"))
                 else:
                     try:
                         delete_exchange_cascade(con, ex_name_to_id[delete_exchange_name])
-                        st.success(f"Deleted exchange: {delete_exchange_name}")
+                        st.success(t("delete_exchange_success", name=delete_exchange_name))
                         st.rerun()
                     except ServiceError as exc:
-                        st.error(str(exc))
+                        st.error(_translate_service_error_message(exc))
 
 
 def _format_pct(value: float) -> str:
@@ -724,6 +1036,45 @@ def _build_link_html(label: str, url: str) -> str:
     )
 
 
+def _translate_exchange_type(exchange_type: object) -> str:
+    exchange_type = str(exchange_type or "").strip().lower()
+    if exchange_type == "broker":
+        return t("type_value_broker")
+    return t("type_value_exchange")
+
+
+def _translate_link_label(label: object) -> str:
+    normalized = str(label or "").strip().lower()
+    mapping = {
+        "website": t("website_label"),
+        "api source": t("api_source_col"),
+        "fx reference": t("fx_reference_col"),
+        "fee source": t("fee_source_col"),
+    }
+    return mapping.get(normalized, str(label or ""))
+
+
+def _translate_source_value(source_value: object, *, keep_suffix: bool = True) -> str:
+    raw = str(source_value or "").strip()
+    if not raw:
+        return "—"
+
+    mappings = {
+        "live": t("source_live"),
+        "fallback": t("source_fallback"),
+        "estimate": t("source_estimate"),
+    }
+    raw_lower = raw.lower()
+
+    for prefix, translated in mappings.items():
+        if raw_lower.startswith(prefix):
+            if keep_suffix and len(raw) > len(prefix):
+                return f"{translated}{raw[len(prefix):]}"
+            return translated
+
+    return raw
+
+
 def _resolve_customer_website_url(row: pd.Series) -> str:
     affiliate_url = _normalize_link_url(row.get("Affiliate", ""))
     if affiliate_url:
@@ -744,16 +1095,21 @@ def _build_exchange_links_html(row: pd.Series, symbol: str) -> str:
 
     website_url = _resolve_customer_website_url(row)
     if website_url:
-        link_html_parts.append(_build_link_html("Website", website_url))
+        link_html_parts.append(_build_link_html(t("website_label"), website_url))
 
     for item in _get_market_links_for_row(row, symbol):
         item_url = _normalize_link_url(item.get("url"))
         if item_url:
-            link_html_parts.append(_build_link_html(item.get("label", "API source"), item_url))
+            link_html_parts.append(
+                _build_link_html(
+                    _translate_link_label(item.get("label", t("api_source_col"))),
+                    item_url,
+                )
+            )
 
     fee_source_url = _normalize_link_url(row.get("Fee source", row.get("Source", "")))
     if fee_source_url:
-        link_html_parts.append(_build_link_html("Fee source", fee_source_url))
+        link_html_parts.append(_build_link_html(t("fee_source_col"), fee_source_url))
 
     if not link_html_parts:
         return ""
@@ -786,8 +1142,8 @@ def _get_market_link_columns(
 def _source_badge(source: str) -> str:
     source = str(source or "").lower()
     if source.startswith("fallback"):
-        return '<span class="badge badge-fallback">Fallback</span>'
-    return '<span class="badge badge-live">Live</span>'
+        return f'<span class="badge badge-fallback">{t("fallback_badge")}</span>'
+    return f'<span class="badge badge-live">{t("live_badge")}</span>'
 
 
 def _resolve_total_column(df: pd.DataFrame, amount: int) -> str:
@@ -827,9 +1183,9 @@ def render_summary_cards(df: pd.DataFrame, amount: int) -> None:
         st.markdown(
             f"""
             <div class="metric-card">
-                <div class="metric-label">Cheapest exchange</div>
+                <div class="metric-label">{t("cheapest_exchange_label")}</div>
                 <div class="metric-value">{cheapest["Exchange"]}</div>
-                <div class="metric-subvalue">{_format_eur(cheapest[total_col])} total cost</div>
+                <div class="metric-subvalue">{_format_eur(cheapest[total_col])} {t("total_cost_suffix")}</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -839,9 +1195,9 @@ def render_summary_cards(df: pd.DataFrame, amount: int) -> None:
         st.markdown(
             f"""
             <div class="metric-card">
-                <div class="metric-label">Lowest total cost</div>
+                <div class="metric-label">{t("lowest_total_cost_label")}</div>
                 <div class="metric-value">{_format_eur(cheapest[total_col])}</div>
-                <div class="metric-subvalue">Based on € {amount}</div>
+                <div class="metric-subvalue">{t("based_on_amount", amount=amount)}</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -851,7 +1207,7 @@ def render_summary_cards(df: pd.DataFrame, amount: int) -> None:
         st.markdown(
             f"""
             <div class="metric-card">
-                <div class="metric-label">Best spread</div>
+                <div class="metric-label">{t("best_spread_label")}</div>
                 <div class="metric-value">{_format_spread_pct(float(best_spread["Spread %"]))}</div>
                 <div class="metric-subvalue">{best_spread["Exchange"]}</div>
             </div>
@@ -863,9 +1219,9 @@ def render_summary_cards(df: pd.DataFrame, amount: int) -> None:
         st.markdown(
             f"""
             <div class="metric-card">
-                <div class="metric-label">Latest market update</div>
+                <div class="metric-label">{t("latest_market_update_label")}</div>
                 <div class="metric-value" style="font-size:1.18rem;">{_format_ts_short(latest_ts)}</div>
-                <div class="metric-subvalue">Most recent visible quote</div>
+                <div class="metric-subvalue">{t("most_recent_visible_quote_label")}</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -874,12 +1230,15 @@ def render_summary_cards(df: pd.DataFrame, amount: int) -> None:
 
 def render_exchange_cards(df: pd.DataFrame, symbol: str, amount: int) -> None:
     if df.empty:
-        st.info("No comparison data available.")
+        st.info(t("no_comparison_data"))
         return
 
-    st.markdown('<div class="section-title">Ranked exchanges</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="section-subtitle">A cleaner view of the total BTC purchase cost across all supported venues.</div>',
+        f'<div class="section-title">{t("ranked_exchanges_title")}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f'<div class="section-subtitle">{t("ranked_exchanges_subtitle")}</div>',
         unsafe_allow_html=True,
     )
 
@@ -887,9 +1246,9 @@ def render_exchange_cards(df: pd.DataFrame, symbol: str, amount: int) -> None:
     ranked = df.sort_values(total_col, ascending=True).reset_index(drop=True)
 
     for i, (_, row) in enumerate(ranked.iterrows(), start=1):
-        best_badge = '<span class="badge badge-best">Best price</span>' if i == 1 else ""
+        best_badge = f'<span class="badge badge-best">{t("best_price_badge")}</span>' if i == 1 else ""
         source_badge = _source_badge(row.get("Spread source", ""))
-        source_text = str(row.get("Spread source", "")).split("(")[0].strip().title() or "—"
+        source_text = _translate_source_value(row.get("Spread source", ""), keep_suffix=False)
         link_html = _build_exchange_links_html(row, symbol)
 
         st.markdown(
@@ -897,38 +1256,38 @@ def render_exchange_cards(df: pd.DataFrame, symbol: str, amount: int) -> None:
             <div class="exchange-card">
                 <div class="exchange-top">
                     <div>
-                        <div class="exchange-rank">Rank #{i}</div>
+                        <div class="exchange-rank">{t("rank_label", rank=i)}</div>
                         <div class="exchange-name">{row["Exchange"]}</div>
                         <div class="exchange-meta">{best_badge}{source_badge}</div>
                     </div>
                     <div class="exchange-total">
-                        <div class="exchange-total-label">Total cost on € {amount}</div>
+                        <div class="exchange-total-label">{t("total_cost_on_amount", amount=amount)}</div>
                         <div class="exchange-total-value">{_format_eur(row[total_col])}</div>
                     </div>
                 </div>
                 <div class="exchange-grid">
                     <div class="mini-stat">
-                        <div class="mini-stat-label">Maker fee %</div>
+                        <div class="mini-stat-label">{t("maker_fee_pct_short")}</div>
                         <div class="mini-stat-value">{_format_pct(float(row["Maker fee %"]))}</div>
                     </div>
                     <div class="mini-stat">
-                        <div class="mini-stat-label">Taker fee %</div>
+                        <div class="mini-stat-label">{t("taker_fee_pct_short")}</div>
                         <div class="mini-stat-value">{_format_pct(float(row["Taker fee %"]))}</div>
                     </div>
                     <div class="mini-stat">
-                        <div class="mini-stat-label">Used fee %</div>
+                        <div class="mini-stat-label">{t("used_fee_pct_short")}</div>
                         <div class="mini-stat-value">{_format_pct(float(row["Used fee %"]))}</div>
                     </div>
                     <div class="mini-stat">
-                        <div class="mini-stat-label">Spread %</div>
+                        <div class="mini-stat-label">{t("spread_pct_short")}</div>
                         <div class="mini-stat-value">{_format_spread_pct(float(row["Spread %"]))}</div>
                     </div>
                     <div class="mini-stat">
-                        <div class="mini-stat-label">Total %</div>
+                        <div class="mini-stat-label">{t("total_pct_short")}</div>
                         <div class="mini-stat-value">{_format_pct(float(row["Total %"]))}</div>
                     </div>
                     <div class="mini-stat">
-                        <div class="mini-stat-label">Quote source</div>
+                        <div class="mini-stat-label">{t("quote_source_label")}</div>
                         <div class="mini-stat-value">{source_text}</div>
                     </div>
                 </div>
@@ -940,11 +1299,11 @@ def render_exchange_cards(df: pd.DataFrame, symbol: str, amount: int) -> None:
 
 
 def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
-    with st.expander("Open detailed comparison data", expanded=False):
+    with st.expander(t("details_expander_label"), expanded=False):
         if df.empty:
-            st.info("No comparison data available.")
+            st.info(t("no_comparison_data"))
             st.download_button(
-                "Export CSV",
+                t("export_csv_button"),
                 data=df.to_csv(index=False).encode("utf-8"),
                 file_name=f"crypto_fee_comparison_{symbol}_{amount}.csv",
                 mime="text/csv",
@@ -966,12 +1325,16 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
         df_export["API source"] = market_links.map(lambda links: links[0])
         df_export["FX reference"] = market_links.map(lambda links: links[1])
         df_export = df_export.drop(columns=["Affiliate"], errors="ignore")
+        if "Type" in df_export.columns:
+            df_export["Type"] = df_export["Type"].map(_translate_exchange_type)
+        if "Spread source" in df_export.columns:
+            df_export["Spread source"] = df_export["Spread source"].map(_translate_source_value)
 
         df_display = df_export.copy()
-        df_display.insert(0, "Status", "")
+        df_display.insert(0, t("status_label"), "")
 
         cheapest_idx = df_display[total_col].idxmin()
-        df_display.loc[cheapest_idx, "Status"] = "Cheapest"
+        df_display.loc[cheapest_idx, t("status_label")] = t("status_cheapest")
 
         df_display = df_display.drop(columns=["Fee %", "Source"], errors="ignore")
 
@@ -986,9 +1349,32 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
             if col in df_display.columns:
                 df_display[col] = df_display[col].map(lambda v: f"€ {float(v):.2f}")
 
+        translated_total_col = t("total_eur_col", amount=amount)
+        column_labels = {
+            "Exchange": t("exchange_col"),
+            "Type": t("type_col"),
+            "Maker fee %": t("maker_fee_pct_short"),
+            "Taker fee %": t("taker_fee_pct_short"),
+            "Used fee %": t("used_fee_pct_short"),
+            "Spread %": t("spread_pct_short"),
+            "Total %": t("total_pct_short"),
+            "Spread source": t("quote_source_label"),
+            "Website": t("website_label"),
+            "API source": t("api_source_col"),
+            "FX reference": t("fx_reference_col"),
+            "Fee source": t("fee_source_col"),
+            "iDEAL fee €": t("ideal_fee_col"),
+            "EUR opname €": t("eur_withdrawal_fee_col"),
+            "Fees bijgewerkt": t("fees_updated_col"),
+            "Fees updated": t("fees_updated_col"),
+            total_col: translated_total_col,
+        }
+        df_display = df_display.rename(columns=column_labels)
+        df_export = df_export.rename(columns=column_labels)
+
         st.dataframe(df_display, width="stretch")
         st.download_button(
-            "Export CSV",
+            t("export_csv_button"),
             data=df_export.to_csv(index=False).encode("utf-8"),
             file_name=f"crypto_fee_comparison_{symbol}_{amount}.csv",
             mime="text/csv",
@@ -996,14 +1382,14 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
 
 
 def render_debug(con, symbol: str) -> None:
-    st.subheader("Debug")
-    st.write("DB:", str(DB_PATH))
-    st.write("Streamlit Cloud mode:", is_streamlit_cloud())
-    st.write("Live exchanges:", list(LIVE_EXCHANGES))
+    st.subheader(t("debug_title"))
+    st.write(t("db_label"), str(DB_PATH))
+    st.write(t("streamlit_cloud_mode_label"), is_streamlit_cloud())
+    st.write(t("live_exchanges_label"), list(LIVE_EXCHANGES))
 
     exchanges = list_exchanges(con)
     exchange_names = [str(row["name"]) for row in exchanges]
-    st.write("Exchanges:", exchange_names)
+    st.write(t("exchanges_label"), exchange_names)
 
     cur = con.cursor()
     cur.execute(
@@ -1025,9 +1411,9 @@ def render_debug(con, symbol: str) -> None:
         pd.DataFrame(
             [
                 {
-                    "Exchange": str(row["exchange"]),
-                    "Quote count": int(row["quote_count"]),
-                    "Latest ts": row["latest_ts"],
+                    t("exchange_col"): str(row["exchange"]),
+                    t("quote_count_col"): int(row["quote_count"]),
+                    t("latest_ts_col"): row["latest_ts"],
                 }
                 for row in rows
             ]
@@ -1063,17 +1449,24 @@ if refresh_failures:
     refresh_failures = {name: err for name, err in refresh_failures.items() if name in LIVE_EXCHANGES}
     if refresh_failures and ADMIN_MODE:
         st.warning(
-            "Live quote refresh issues: "
-            + "; ".join([f"{name}: {error}" for name, error in refresh_failures.items()])
+            t(
+                "live_quote_refresh_issues",
+                details="; ".join(
+                    [
+                        f"{name}: {_translate_service_error_message(error)}"
+                        for name, error in refresh_failures.items()
+                    ]
+                ),
+            )
         )
 
 try:
     df = build_comparison_dataframe(con, symbol=symbol, amount=float(amount))
 except ServiceError as exc:
-    st.error(str(exc))
+    st.error(_translate_service_error_message(exc))
     df = pd.DataFrame()
 except Exception as exc:
-    st.error(f"Unexpected error while building dashboard: {exc}")
+    st.error(t("unexpected_dashboard_error", error=exc))
     df = pd.DataFrame()
 
 if not df.empty:
@@ -1096,7 +1489,7 @@ if ADMIN_MODE:
     render_admin(con)
 
 st.caption(
-    "Tip: total-cost ranking uses taker fees from the database, while spreads and market/API sources are refreshed from live data."
+    t("admin_tip_caption")
     if ADMIN_MODE
     else ""
 )
