@@ -682,11 +682,10 @@ def render_header() -> None:
                 f'<div class="control-label">{t("language_label")}</div>',
                 unsafe_allow_html=True,
             )
-            st.radio(
+            st.selectbox(
                 t("language_label"),
                 options=list(LANGUAGE_OPTIONS.keys()),
                 format_func=lambda language_code: LANGUAGE_OPTIONS.get(language_code, language_code),
-                horizontal=True,
                 key="language",
                 label_visibility="collapsed",
             )
