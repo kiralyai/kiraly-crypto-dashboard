@@ -724,6 +724,13 @@ def _build_link_html(label: str, url: str) -> str:
     )
 
 
+def _resolve_customer_website_url(row: pd.Series) -> str:
+    affiliate_url = _normalize_link_url(row.get("Affiliate", ""))
+    if affiliate_url:
+        return affiliate_url
+    return _normalize_link_url(row.get("Website", ""))
+
+
 def _get_market_links_for_row(row: pd.Series, symbol: str) -> list[dict[str, str]]:
     return get_market_data_source_links(
         str(row["Exchange"]),
@@ -735,7 +742,7 @@ def _get_market_links_for_row(row: pd.Series, symbol: str) -> list[dict[str, str
 def _build_exchange_links_html(row: pd.Series, symbol: str) -> str:
     link_html_parts: list[str] = []
 
-    website_url = _normalize_link_url(row.get("Website", ""))
+    website_url = _resolve_customer_website_url(row)
     if website_url:
         link_html_parts.append(_build_link_html("Website", website_url))
 
@@ -747,10 +754,6 @@ def _build_exchange_links_html(row: pd.Series, symbol: str) -> str:
     fee_source_url = _normalize_link_url(row.get("Fee source", row.get("Source", "")))
     if fee_source_url:
         link_html_parts.append(_build_link_html("Fee source", fee_source_url))
-
-    affiliate_url = _normalize_link_url(row.get("Affiliate", ""))
-    if affiliate_url:
-        link_html_parts.append(_build_link_html("Affiliate", affiliate_url))
 
     if not link_html_parts:
         return ""
@@ -959,8 +962,10 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
             ),
             axis=1,
         )
+        df_export["Website"] = df_export.apply(_resolve_customer_website_url, axis=1)
         df_export["API source"] = market_links.map(lambda links: links[0])
         df_export["FX reference"] = market_links.map(lambda links: links[1])
+        df_export = df_export.drop(columns=["Affiliate"], errors="ignore")
 
         df_display = df_export.copy()
         df_display.insert(0, "Status", "")
