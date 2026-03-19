@@ -128,7 +128,7 @@ TRANSLATIONS = {
         "error_delete_exchange": "Kon exchange niet verwijderen: {error}",
         "error_exchange_missing_seed": "{name} staat niet in exchanges. Run scripts/init_db.py",
         "error_fetch_store_quote": "Kon quote voor {name} niet ophalen/opslaan: {error}",
-        "footer_primary": "Ontwikkeld door KiralyAI — AI-tools, automatiseringen en moderne websites voor groeiende bedrijven.",
+        "footer_primary": "Ontwikkeld door KiralyAI - AI-tools, automatiseringen en moderne websites voor groeiende bedrijven.",
         "footer_secondary_prefix": "Meer projecten en oplossingen bekijken? Bezoek ",
         "footer_secondary_link_label": "KiralyAI",
         "footer_secondary_suffix": ".",
