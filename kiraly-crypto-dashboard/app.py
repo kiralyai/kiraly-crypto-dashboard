@@ -21,7 +21,7 @@ from fees_service import (
     save_exchange_fees,
 )
 
-LIVE_EXCHANGES = ("Bitvavo", "Kraken", "Coinbase", "OKX")
+LIVE_EXCHANGES = ("Bitvavo", "Kraken", "Coinbase", "Binance", "Bybit", "OKX")
 
 st.set_page_config(
     page_title="KiralyAI | Crypto Exchange Cost Dashboard",
