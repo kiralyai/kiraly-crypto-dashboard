@@ -75,9 +75,9 @@ TRANSLATIONS = {
         "fallback_badge": "Fallback",
         "best_price_badge": "Beste prijs",
         "rank_label": "Rang #{rank}",
-        "cheapest_exchange_label": "Goedkoopste exchange",
+        "cheapest_exchange_label": "Goedkoopste exchange (obv taker fee)",
         "total_cost_suffix": "totale kosten",
-        "lowest_total_cost_label": "Laagste totale kosten",
+        "lowest_total_cost_label": "Laagste totale kosten (obv taker fee)",
         "based_on_amount": "Gebaseerd op € {amount}",
         "best_spread_label": "Beste spread",
         "latest_market_update_label": "Laatste marktupdate",
@@ -85,7 +85,8 @@ TRANSLATIONS = {
         "no_comparison_data": "Geen vergelijkingsdata beschikbaar.",
         "ranked_exchanges_title": "Gerangschikte exchanges",
         "ranked_exchanges_subtitle": "Een overzichtelijker beeld van de totale BTC-aankoopkosten over alle ondersteunde platforms.",
-        "total_cost_on_amount": "Totale kosten op € {amount}",
+        "total_cost_on_amount": "Totale kosten op €{amount} (obv taker fee)",
+        "cheapest_total_cost_summary": "{cost} totale kosten gebaseerd op €{amount}",
         "maker_fee_pct_short": "Maker fee %",
         "taker_fee_pct_short": "Taker fee %",
         "used_fee_pct_short": "Gebruikte fee %",
@@ -106,7 +107,7 @@ TRANSLATIONS = {
         "api_source_col": "API-bron",
         "fx_reference_col": "FX-referentie",
         "fee_source_col": "Feebron",
-        "total_eur_col": "Totaal € (op €{amount})",
+        "total_eur_col": "Totale kosten op €{amount} (obv taker fee)",
         "debug_title": "Debug",
         "db_label": "DB:",
         "streamlit_cloud_mode_label": "Streamlit Cloud-modus:",
@@ -116,7 +117,10 @@ TRANSLATIONS = {
         "latest_ts_col": "Laatste ts",
         "live_quote_refresh_issues": "Problemen bij live quote refresh: {details}",
         "unexpected_dashboard_error": "Onverwachte fout tijdens het bouwen van het dashboard: {error}",
-        "admin_tip_caption": "Tip: de totale ranking gebruikt taker fees uit de database, terwijl spreads en markt/API-bronnen live worden ververst.",
+        "admin_tip_caption": "Tip: de totale ranking gebruikt taker fees uit de database, terwijl spreads en bronlinks live worden ververst.",
+        "costs_disclaimer": "De weergegeven kosten worden live opgehaald bij de betreffende exchanges en kunnen afwijken van de werkelijk gehanteerde tarieven. Aan deze informatie kunnen geen rechten worden ontleend. Controleer altijd de actuele kosten rechtstreeks bij de exchange voordat u een transactie uitvoert.",
+        "studio_crypto_credit_prefix": "In opdracht van ",
+        "studio_crypto_credit_label": "Studio Crypto",
         "source_live": "Live",
         "source_fallback": "Fallback",
         "source_estimate": "Schatting",
@@ -180,9 +184,9 @@ TRANSLATIONS = {
         "fallback_badge": "Fallback",
         "best_price_badge": "Best price",
         "rank_label": "Rank #{rank}",
-        "cheapest_exchange_label": "Cheapest exchange",
+        "cheapest_exchange_label": "Cheapest exchange (based on taker fee)",
         "total_cost_suffix": "total cost",
-        "lowest_total_cost_label": "Lowest total cost",
+        "lowest_total_cost_label": "Lowest total cost (based on taker fee)",
         "based_on_amount": "Based on € {amount}",
         "best_spread_label": "Best spread",
         "latest_market_update_label": "Latest market update",
@@ -190,7 +194,8 @@ TRANSLATIONS = {
         "no_comparison_data": "No comparison data available.",
         "ranked_exchanges_title": "Ranked exchanges",
         "ranked_exchanges_subtitle": "A cleaner view of the total BTC purchase cost across all supported venues.",
-        "total_cost_on_amount": "Total cost on € {amount}",
+        "total_cost_on_amount": "Total cost on €{amount} (based on taker fee)",
+        "cheapest_total_cost_summary": "{cost} total cost based on €{amount}",
         "maker_fee_pct_short": "Maker fee %",
         "taker_fee_pct_short": "Taker fee %",
         "used_fee_pct_short": "Used fee %",
@@ -211,7 +216,7 @@ TRANSLATIONS = {
         "api_source_col": "API source",
         "fx_reference_col": "FX reference",
         "fee_source_col": "Fee source",
-        "total_eur_col": "Total € (on €{amount})",
+        "total_eur_col": "Total cost on €{amount} (based on taker fee)",
         "debug_title": "Debug",
         "db_label": "DB:",
         "streamlit_cloud_mode_label": "Streamlit Cloud mode:",
@@ -221,7 +226,10 @@ TRANSLATIONS = {
         "latest_ts_col": "Latest ts",
         "live_quote_refresh_issues": "Live quote refresh issues: {details}",
         "unexpected_dashboard_error": "Unexpected error while building dashboard: {error}",
-        "admin_tip_caption": "Tip: total-cost ranking uses taker fees from the database, while spreads and market/API sources are refreshed from live data.",
+        "admin_tip_caption": "Tip: total-cost ranking uses taker fees from the database, while spreads and source links are refreshed from live data.",
+        "costs_disclaimer": "The displayed costs are retrieved live from the relevant exchanges and may differ from the actual rates applied. No rights can be derived from this information. Always verify the current fees directly with the exchange before executing a transaction.",
+        "studio_crypto_credit_prefix": "Commissioned by ",
+        "studio_crypto_credit_label": "Studio Crypto",
         "source_live": "Live",
         "source_fallback": "Fallback",
         "source_estimate": "Estimate",
@@ -641,6 +649,38 @@ def apply_light_style() -> None:
             text-decoration: underline;
         }
 
+        .kiraly-disclaimer {
+            margin-top: 20px;
+            padding: 16px 18px;
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            background: rgba(248, 250, 252, 0.96);
+        }
+
+        .kiraly-disclaimer-text {
+            color: #64748B;
+            font-size: 0.84rem;
+            line-height: 1.65;
+        }
+
+        .client-credit {
+            margin-top: 14px;
+            text-align: center;
+            color: #94A3B8;
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+
+        .client-credit a {
+            color: #475569;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .client-credit a:hover {
+            text-decoration: underline;
+        }
+
         div[data-testid="stDataFrame"] {
             border-radius: 16px;
             overflow: hidden;
@@ -946,25 +986,13 @@ def render_admin(con) -> None:
                     format="%.4f",
                     help=t("taker_fee_help"),
                 )
+            with col_b:
                 new_spread_est = st.number_input(
                     t("spread_estimate_pct_label"),
                     value=spread_estimate_pct,
                     step=0.01,
                     format="%.4f",
                     help=t("spread_estimate_help"),
-                )
-            with col_b:
-                new_ideal_fee = st.number_input(
-                    t("ideal_fee_eur_label"),
-                    value=deposit_ideal_fee_eur,
-                    step=0.10,
-                    format="%.2f",
-                )
-                new_withdraw_fee = st.number_input(
-                    t("eur_withdrawal_fee_label"),
-                    value=withdraw_eur_fee_eur,
-                    step=0.10,
-                    format="%.2f",
                 )
 
             new_source = st.text_input(t("fee_source_url_label"), value=source_url)
@@ -983,8 +1011,8 @@ def render_admin(con) -> None:
                         con,
                         exchange_id=selected_id,
                         trading_fee_pct=float(new_taker_fee),
-                        deposit_ideal_fee_eur=float(new_ideal_fee),
-                        withdraw_eur_fee_eur=float(new_withdraw_fee),
+                        deposit_ideal_fee_eur=float(deposit_ideal_fee_eur),
+                        withdraw_eur_fee_eur=float(withdraw_eur_fee_eur),
                         spread_estimate_pct=float(new_spread_est),
                         source_url=new_source,
                         maker_fee_pct=float(new_maker_fee),
@@ -1084,11 +1112,14 @@ def _translate_link_label(label: object) -> str:
     normalized = str(label or "").strip().lower()
     mapping = {
         "website": t("website_label"),
-        "api source": t("api_source_col"),
         "fx reference": t("fx_reference_col"),
         "fee source": t("fee_source_col"),
     }
     return mapping.get(normalized, str(label or ""))
+
+
+def _is_api_source_label(label: object) -> bool:
+    return str(label or "").strip().lower() == "api source"
 
 
 def _translate_source_value(source_value: object, *, keep_suffix: bool = True) -> str:
@@ -1135,11 +1166,13 @@ def _build_exchange_links_html(row: pd.Series, symbol: str) -> str:
         link_html_parts.append(_build_link_html(t("website_label"), website_url))
 
     for item in _get_market_links_for_row(row, symbol):
+        if _is_api_source_label(item.get("label")):
+            continue
         item_url = _normalize_link_url(item.get("url"))
         if item_url:
             link_html_parts.append(
                 _build_link_html(
-                    _translate_link_label(item.get("label", t("api_source_col"))),
+                    _translate_link_label(item.get("label", "")),
                     item_url,
                 )
             )
@@ -1161,19 +1194,21 @@ def _build_exchange_links_html(row: pd.Series, symbol: str) -> str:
     )
 
 
-def _get_market_link_columns(
+def _get_reference_link_column(
     exchange_name: str,
     symbol: str,
     spread_source: str,
-) -> tuple[str, str]:
+) -> str:
     links = get_market_data_source_links(
         exchange_name,
         symbol=symbol,
         spread_source=spread_source,
     )
-    market_api = _normalize_link_url(links[0]["url"]) if links else ""
-    reference_api = _normalize_link_url(links[1]["url"]) if len(links) > 1 else ""
-    return market_api, reference_api
+    for item in links:
+        if _is_api_source_label(item.get("label")):
+            continue
+        return _normalize_link_url(item.get("url"))
+    return ""
 
 
 def _source_badge(source: str) -> str:
@@ -1222,7 +1257,7 @@ def render_summary_cards(df: pd.DataFrame, amount: int) -> None:
             <div class="metric-card">
                 <div class="metric-label">{t("cheapest_exchange_label")}</div>
                 <div class="metric-value">{cheapest["Exchange"]}</div>
-                <div class="metric-subvalue">{_format_eur(cheapest[total_col])} {t("total_cost_suffix")}</div>
+                <div class="metric-subvalue">{t("cheapest_total_cost_summary", cost=_format_eur(cheapest[total_col]), amount=amount)}</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -1350,8 +1385,8 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
 
         total_col = _resolve_total_column(df, amount)
         df_export = df.copy()
-        market_links = df_export.apply(
-            lambda row: _get_market_link_columns(
+        reference_links = df_export.apply(
+            lambda row: _get_reference_link_column(
                 str(row["Exchange"]),
                 symbol,
                 str(row.get("Spread source", "")),
@@ -1359,9 +1394,13 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
             axis=1,
         )
         df_export["Website"] = df_export.apply(_resolve_customer_website_url, axis=1)
-        df_export["API source"] = market_links.map(lambda links: links[0])
-        df_export["FX reference"] = market_links.map(lambda links: links[1])
-        df_export = df_export.drop(columns=["Affiliate"], errors="ignore")
+        df_export["FX reference"] = reference_links
+        df_export = df_export.drop(
+            columns=["Affiliate", "API source", "iDEAL fee €", "EUR opname €"],
+            errors="ignore",
+        )
+        if "FX reference" in df_export.columns and df_export["FX reference"].astype(str).str.strip().eq("").all():
+            df_export = df_export.drop(columns=["FX reference"], errors="ignore")
         if "Type" in df_export.columns:
             df_export["Type"] = df_export["Type"].map(_translate_exchange_type)
         if "Spread source" in df_export.columns:
@@ -1382,7 +1421,7 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
         if "Spread %" in df_display.columns:
             df_display["Spread %"] = df_display["Spread %"].map(_format_spread_pct)
 
-        for col in [total_col, "iDEAL fee €", "EUR opname €"]:
+        for col in [total_col]:
             if col in df_display.columns:
                 df_display[col] = df_display[col].map(lambda v: f"€ {float(v):.2f}")
 
@@ -1397,11 +1436,8 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
             "Total %": t("total_pct_short"),
             "Spread source": t("quote_source_label"),
             "Website": t("website_label"),
-            "API source": t("api_source_col"),
             "FX reference": t("fx_reference_col"),
             "Fee source": t("fee_source_col"),
-            "iDEAL fee €": t("ideal_fee_col"),
-            "EUR opname €": t("eur_withdrawal_fee_col"),
             "Fees bijgewerkt": t("fees_updated_col"),
             "Fees updated": t("fees_updated_col"),
             total_col: translated_total_col,
@@ -1416,6 +1452,33 @@ def render_details_table(df: pd.DataFrame, symbol: str, amount: int) -> None:
             file_name=f"crypto_fee_comparison_{symbol}_{amount}.csv",
             mime="text/csv",
         )
+
+
+def render_costs_disclaimer() -> None:
+    st.markdown(
+        f"""
+        <div class="kiraly-disclaimer">
+            <div class="kiraly-disclaimer-text">{html.escape(t("costs_disclaimer"))}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_client_credit() -> None:
+    credit_url = "https://www.instagram.com/studiocrypto.nl"
+    credit_prefix = html.escape(t("studio_crypto_credit_prefix"))
+    credit_label = html.escape(t("studio_crypto_credit_label"))
+    credit_url_safe = html.escape(credit_url, quote=True)
+
+    st.markdown(
+        f"""
+        <div class="client-credit">
+            {credit_prefix}<a href="{credit_url_safe}" target="_blank" rel="noopener noreferrer">{credit_label}</a>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_debug(con, symbol: str) -> None:
@@ -1539,6 +1602,9 @@ render_summary_cards(df, amount=int(amount))
 st.markdown("")
 render_exchange_cards(df, symbol=symbol, amount=int(amount))
 render_details_table(df, symbol=symbol, amount=int(amount))
+if not df.empty:
+    render_costs_disclaimer()
+    render_client_credit()
 
 if ADMIN_MODE:
     st.divider()
