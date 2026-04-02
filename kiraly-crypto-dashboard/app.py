@@ -34,6 +34,11 @@ TRANSLATIONS = {
         "hero_chip": "Live marktoverzicht",
         "hero_title": "Crypto Exchange Kosten Dashboard",
         "hero_subtitle": "Vergelijk de totale EUR-kosten van BTC kopen bij grote exchanges. Zie direct waar je het voordeligst uit bent, met live spread en fee-impact.",
+        "hero_credit_prefix": "Dit dashboard is ontwikkeld in opdracht van ",
+        "hero_credit_studio_label": "Studio Crypto",
+        "hero_credit_middle": " en gerealiseerd door ",
+        "hero_credit_kiraly_label": "KiralyAI",
+        "hero_credit_suffix": ". Wij bouwen AI-oplossingen, dashboards en automatiseringen die bedrijven helpen sneller en slimmer te werken.",
         "pair_label": "Handelspaar",
         "investment_amount_label": "Investeringsbedrag",
         "market_data_label": "Marktdata",
@@ -143,6 +148,11 @@ TRANSLATIONS = {
         "hero_chip": "Live market overview",
         "hero_title": "Crypto Exchange Cost Dashboard",
         "hero_subtitle": "Compare the total EUR cost of buying BTC across major exchanges. See the cheapest venue instantly, with live spread and fee impact.",
+        "hero_credit_prefix": "This dashboard was developed on behalf of ",
+        "hero_credit_studio_label": "Studio Crypto",
+        "hero_credit_middle": " and delivered by ",
+        "hero_credit_kiraly_label": "KiralyAI",
+        "hero_credit_suffix": ". We build AI solutions, dashboards, and automations that help businesses work faster and smarter.",
         "pair_label": "Pair",
         "investment_amount_label": "Investment amount",
         "market_data_label": "Market data",
@@ -423,6 +433,24 @@ def apply_light_style() -> None:
             color: #64748B;
             font-size: 1rem;
             max-width: 760px;
+        }
+
+        .hero-credit {
+            color: #64748B;
+            font-size: 0.96rem;
+            line-height: 1.7;
+            max-width: 760px;
+            margin-top: 10px;
+        }
+
+        .hero-credit a {
+            color: #1D4ED8;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .hero-credit a:hover {
+            text-decoration: underline;
         }
 
         .control-label {
@@ -746,11 +774,24 @@ def render_header() -> None:
                 pass
 
         with center_col:
+            studio_url = html.escape("https://www.instagram.com/studiocrypto.nl", quote=True)
+            kiraly_url = html.escape("https://kiralyai.com", quote=True)
+            hero_credit_html = (
+                html.escape(t("hero_credit_prefix"))
+                + f'<a href="{studio_url}" target="_blank" rel="noopener noreferrer">{html.escape(t("hero_credit_studio_label"))}</a>'
+                + html.escape(t("hero_credit_middle"))
+                + f'<a href="{kiraly_url}" target="_blank" rel="noopener noreferrer">{html.escape(t("hero_credit_kiraly_label"))}</a>'
+                + html.escape(t("hero_credit_suffix"))
+            )
             st.markdown('<div class="hero-wrap">', unsafe_allow_html=True)
             st.markdown(f'<div class="hero-chip">{t("hero_chip")}</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="hero-title">{t("hero_title")}</div>', unsafe_allow_html=True)
             st.markdown(
                 f'<div class="hero-subtitle">{t("hero_subtitle")}</div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f'<div class="hero-credit">{hero_credit_html}</div>',
                 unsafe_allow_html=True,
             )
             st.markdown("</div>", unsafe_allow_html=True)
